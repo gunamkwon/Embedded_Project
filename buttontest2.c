@@ -6,9 +6,9 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
-#define INPUT_DEVICE_LIST
+#define INPUT_DEVICE_LIST"/dev/input/event5"
 
-#define PROBE_FILE
+#define PROBE_FILE "/proc/bus/input/devices"
 
 int main(int argc, char *argv[])
 {
@@ -43,6 +43,11 @@ case KEY_BACK: printf("Back key):"); break;
 case KEY_MENU: printf("Menu key):"); break;
 case KEY_VOLUMEDOWN: printf("Volume down key):");
 }
+if(msgRX.pressed) printf("pressed\n");
+else printf("released\n"0;
 }
+else;
 }
+return 0;
 }
+
