@@ -1,0 +1,14 @@
+all: libMyPeri2.a
+
+libMyPeri.a :button2.o led.o buttontest2.o
+	arm-linux-ganueabi-ar rc libNyPeri.a led.o button.o
+button2.o:button2.h button2.c
+	arm-linux-gnueabi-gcc -c button2.c -o button2.o
+led.o:led.h led.c
+	arm-linux-gnueabi-gcc -c led.c -o led,o
+buttontest2.o:button2.h buttontest2.c
+	arm-linux-gnueabi-gcc -c buttontest2.c -o buttontest.o
+
+clean:
+	rm *.o -rf
+	rm *.a -rf
