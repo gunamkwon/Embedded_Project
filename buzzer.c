@@ -95,7 +95,7 @@ int buzzerStopSound()
 	buzzerEnable(0);
 }
 
-void WarningYellow()
+void WarningYELLOW()
 {
    buzzerEnable(1);
    
@@ -103,8 +103,8 @@ void WarningYellow()
         {
         buzzerPlaySound(musicScale[4]);
         sleep(3);
-                buzzerStopSound();
-            sleep(3);
+        buzzerStopSound();
+        sleep(3);
         }
 }
 
@@ -116,8 +116,8 @@ void WarningRED()
         {
         buzzerPlaySound(musicScale[4]);
         sleep(1);
-                buzzerStopSound();
-            sleep(1);
+        buzzerStopSound();
+        sleep(1);
         }
 }
 
