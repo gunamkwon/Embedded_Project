@@ -7,7 +7,7 @@
 #include "colorled.h"
 
 #define COLOR_LED_DEV_R_ "/sys/class/pwm/pwmchip0/"
-#define COLOR_LED_DEV_G_ "/sys/class/pwm/pwmchip0/"
+#define COLOR_LED_DEV_G_ "/sys/class/pwm/pwmchip1/"
 #define COLOR_LED_DEV_B_ "/sys/class/pwm/pwmchip2/"
 
 #define PWM_EXPORT "export"
@@ -42,6 +42,9 @@ int pwmActiveAll(void)
 
 int pwmInactiveAll(void)
 {
+	pwmSetPercent(0,0);
+	pwmSetPercent(0,1);
+	pwmSetPercent(0,2);
 	int fd = 0;
 	fd = open( COLOR_LED_DEV_R_ PWM_UNEXPORT, O_WRONLY );
 	write(fd,&"0",1);
