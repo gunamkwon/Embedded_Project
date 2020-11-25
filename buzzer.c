@@ -73,7 +73,6 @@ void setFrequency(int frequency)
 
 int buzzerPlaySound(int scale)
 {
-	char *s;
 	if(scale > MAX_SCALE_STEP)
 	{
 		printf("<buzzerNO> over range \n");
@@ -95,31 +94,6 @@ int buzzerStopSound()
 	buzzerEnable(0);
 }
 
-void WarningYELLOW()
-{
-   buzzerEnable(1);
-   
-    for(;;)
-        {
-        buzzerPlaySound(musicScale[4]);
-        sleep(3);
-        buzzerStopSound();
-        sleep(3);
-        }
-}
-
-void WarningRED()
-{
-   buzzerEnable(1);
-   
-    for(;;)
-        {
-        buzzerPlaySound(musicScale[4]);
-        sleep(1);
-        buzzerStopSound();
-        sleep(1);
-        }
-}
 
 int buzzerInit()
 {
@@ -132,6 +106,8 @@ int buzzerInit()
 	
 	printf("buzzer test \n");
 	buzzerPlaySound(1);
+	sleep(1);
+	buzzerStopSound();
 }
 
 int buzzerExit()
