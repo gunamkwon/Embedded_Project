@@ -12,7 +12,7 @@ int main(int argc,char **argv)
 	if(argc < 3)
 	{
 		perror("Args number is less than 2\n");
-		doHelp();
+		//doHelp();
 		return 1;
 	}
 	textlcdInit();
