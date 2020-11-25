@@ -20,6 +20,8 @@ int ledOnOff(int ledNum, int onoff)
 
 int ledsOn(int ledCount, int onoff)
 {
+	ledValue = 0;
+	ledOnOff(0,0);
 	int i= 0;
 	if(ledCount >8) {
 		printf("ledCount error! \n");
@@ -44,7 +46,7 @@ int ledLibInit(void)
 int ledLibExit(void)
 {
 	ledValue = 0;
-	// ledOnOff(0,0); // Only in Project
+	ledOnOff(0,0); // Only in Project
 	close(fd);
 }
 
