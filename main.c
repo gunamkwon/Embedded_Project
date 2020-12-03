@@ -14,7 +14,20 @@
 #include "textlcd.h"
 #include "led.h"
 
+
+void library_init();
+void library_exit();
+void* TempSensor();
+void* MagnitudeSensor();
+void* LevelSensor();
+
 int status = 0;
+int button_mode = 0;
+
+pthread_t mode[3];
+pthread_mutex_t lock;
+
+
 
 int main()
 {
@@ -41,8 +54,14 @@ int main()
                 return -2;
             }
 
-            ledLibInit();
+            //thread_mutex_init
+            if(pthread_mutex_init(&lock,NULL)   !=0 )
+            {
+                printf("\n Mutex Init Failed\r\n");
+                return 1;
+            }
 
+            library_init();
 
         }
     }
@@ -58,7 +77,89 @@ int main()
     else
         printf("Fail to Fork\r\n");
 
+    library_exit();
+}
 
+void library_init()
+{
+    ledLibInit();
+    
+    buttonInit();
+    
+    buzzerInit();
+    
+    fndInit();
+    
+    textlcdInit();
+    temp_init();    
+    
+    pwmLedInit();
+}
+
+void library_exit()
+{
+    ledsOn(0,0);
+    ledLibExit();
+
+    buttonExit();
+
+    buzzerExit();
+
+    fndOff();
+    fndExit();
+
+    textlcdOff();
+    temp_off();
+
+    pwmInactiveAll();    
+}
+
+void* MagnitudeSensor()
+{
+    while(1)
+    {
+        pthread_mutex_lock(&lock);
+        if(button_mode == 0)
+        {}
+
+        else
+        {
+            pthread_mutex_unlock(&lock);
+            usleep(1);
+        }
+    }
 
 }
 
+void* TempSensor()
+{   
+    while(1)
+    {
+        pthread_mutex_lock(&lock);
+        if(button_mode == 1)
+        {}
+        else
+        {
+                pthread_mutex_unlock(&lock);
+                usleep(1);
+        }
+    }
+}
+
+
+void* LevelSensor()
+{
+    while(1)
+    {
+        pthread_mutex_lock(&lock);
+        if(button_mode == 2)
+        {}
+
+        else
+        {
+            pthread_mutex_unlock(&lock);
+            usleep(1);
+        }
+    }
+
+}
