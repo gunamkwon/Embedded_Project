@@ -1,9 +1,12 @@
-#include "stdio.h"
-#include "stdlib.h"
-#include "unistd.h"
-#include "sys/shm.h"
-#include "sys/types.h"
-#include "pthread.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/shm.h>
+#include <sys/types.h>
+#include <sys/msg.h>
+#include <pthread.h>
+#include <math.h>
 
 #include "AMGsensor.h"
 #include "button.h"
@@ -24,31 +27,35 @@ void* LevelSensor();
 int status = 0;
 int button_mode = 0;
 
+BUTTON_MSG_T RxButton;
 pthread_t mode[3];
 pthread_mutex_t lock;
 
-
+int msgID;
+int shmID;
+char *shmemAddr;
 
 int main()
 {
+    msgID = msgget(MESSAGE_ID,IPC_CREAT|0666);
     pid_t pid;
+
     pid = fork();
 
     if(pid > 0) // parent process
     {
-        while( !(waitpid(pid,&status,WNOHANG)) )
+        while( !(waitpid(pid,&status,WNOHANG)) ) 
         {
  
             // Shared Memory
-            int shmID = shmget((key_t)1234,1024,IPC_CREAT|0666);
+            shmID = shmget((key_t)1234,1024,IPC_CREAT|0666);
             if(shmID == -1)
             {
                 printf("Shmget Error!\r\n");
             }
 
-            char *shmemAddr;
-            shmemAddr = shmat(shmID, (void *)NULL,0);
-            if((int)(shmemAddr) == -1)
+            shmemAddr = shmat(shmID, (void *)NULL, 0);
+            if( ((int)shmemAddr) == -1)
             {
                 printf("Shmat Error!\r\n");
                 return -2;
@@ -62,16 +69,21 @@ int main()
             }
 
             library_init();
+            pthread_create(&(mode[0]),NULL,&MagnitudeSensor,NULL);
+            pthread_create(&(mode[1]),NULL,&TempSensor,NULL);
+            pthread_create(&(mode[2]),NULL,&LevelSensor,NULL);
+
+            pthread_join(mode[0],NULL);
+            pthread_join(mode[1],NULL);
+            pthread_join(mode[2],NULL);
 
         }
     }
 
     else if(pid == 0) // child process
     {
-        execl("","",(char *)0); // Excuting Graph
-        if() // button push
-            exit(0);
-        
+        execl("/home/ecube/GL","graph_arm",(char *)0); // Excuting Graph
+        while(1);
     }
 
     else
@@ -80,39 +92,6 @@ int main()
     library_exit();
 }
 
-void library_init()
-{
-    ledLibInit();
-    
-    buttonInit();
-    
-    buzzerInit();
-    
-    fndInit();
-    
-    textlcdInit();
-    temp_init();    
-    
-    pwmLedInit();
-}
-
-void library_exit()
-{
-    ledsOn(0,0);
-    ledLibExit();
-
-    buttonExit();
-
-    buzzerExit();
-
-    fndOff();
-    fndExit();
-
-    textlcdOff();
-    temp_off();
-
-    pwmInactiveAll();    
-}
 
 void* MagnitudeSensor()
 {
@@ -120,15 +99,50 @@ void* MagnitudeSensor()
     {
         pthread_mutex_lock(&lock);
         if(button_mode == 0)
-        {}
-
+        { 
+            int *accel_default = getAccelerometer_default();
+            double accelavg_default = getAverage(accel_default);
+            printf("accelavg_default: %lf \r\n",accelavg_default);
+            
+            while(1)
+            {   int *accel_now = getAccelerometer();
+                double accelavg_now = getAverage(accel_now);
+                printf("accelavg_now: %f \r\n",accelavg_now);
+                //*((int *)shmemAddr) = ??;
+            
+                int magnitude = setMagnitude(accelavg_default,accelavg_now);
+                printf("magnitude: %d\r\n",magnitude);
+                ledsOn(magnitude,1);
+                
+                if(magnitude >= 3 && magnitude <= 6) // Warning Stage: Yellow
+                {
+                //    buzzerYellow();
+                //    pwmSetYellow();
+                } 
+                else if(magnitude > 6) // Warning Stage: Red
+                {
+                //    buzzerRed();
+                //    pwmSetRed();
+                }
+                // stopped here with msg function
+                /*int msgret =0;
+                msgret = msgrcv(msgID, &RxButton, sizeof(RxButton)-sizeof(RxButton.messageNum),0,0);
+                if(msgret != -1)
+                {
+                    printf("button_mode: %d \r\n",RxButton.keyInput);
+                    button_mode = RxButton.keyInput;
+                    if(button_mode != 0)
+                        break;
+                }*/        
+            }
+    
+        }   
         else
         {
             pthread_mutex_unlock(&lock);
             usleep(1);
         }
     }
-
 }
 
 void* TempSensor()
@@ -137,7 +151,35 @@ void* TempSensor()
     {
         pthread_mutex_lock(&lock);
         if(button_mode == 1)
-        {}
+        {   
+            // Need to Show TextLCD about mode;
+            int temp_default = getTemperature();
+            while(1)
+            {
+                int temp_now = getTemperature();
+                fndDisp(temp_now,0);    // Display Temperature in FND
+                if( abs(temp_default - temp_now) > 10)    // Waring Stage: Yellow
+                {
+                    // Need to Show TEXT LCD
+                //    buzzerYellow();
+                //   pwmSetYellow();
+                }
+                else if(abs(temp_default - temp_now) > 20) // Waring Stage: Red
+                {
+                    // Need to Show TEXT LCD
+                //    buzzerRed();
+                //    pwmSetRed();
+                }
+                int msgret =0;
+                msgret = msgrcv(msgID, &RxButton, sizeof(RxButton)-sizeof(RxButton.messageNum),0,0);
+                if(msgret != -1)
+                {
+                    button_mode = RxButton.keyInput;
+                    if(button_mode != 1)
+                        break;
+                }   
+            }
+        }
         else
         {
                 pthread_mutex_unlock(&lock);
@@ -151,9 +193,40 @@ void* LevelSensor()
 {
     while(1)
     {
+        // NEED TO SHOW TEXTLCD (MODE)
         pthread_mutex_lock(&lock);
         if(button_mode == 2)
-        {}
+        {
+            int * level_default = getGyroscope();
+            double levelavg_default = getAverage(level_default);
+            while(1)
+            {
+                int * level_now = getGyroscope();
+                double levelavg_now = getAverage(level_now);
+                if(abs(levelavg_default - levelavg_now) > 10) // Waring Stage: Yellow
+                {
+                    // NEED TO SHOW TEXTLCD (MODE)
+                //    buzzerYellow();
+                //    pwmSetYellow();
+                }
+                else if(abs(levelavg_default - levelavg_now) > 20) // Waring Stage: Red
+                {
+                    // NEED TO SHOW TEXTLCD (MODE)
+                //    buzzerRed();
+                //    pwmSetRed();
+                }
+
+                int msgret =0;
+                msgret = msgrcv(msgID, &RxButton, sizeof(RxButton)-sizeof(RxButton.messageNum),0,0);
+                if(msgret != -1)
+                {
+                    printf("button_mode: %d \r\n",RxButton.keyInput);
+                    button_mode = RxButton.keyInput;
+                    if(button_mode != 2)
+                        break;
+                }              
+            }
+        }
 
         else
         {
@@ -162,4 +235,46 @@ void* LevelSensor()
         }
     }
 
+}
+
+
+////////////////////////////// Useless Function
+void library_init()
+{
+    ledLibInit();
+    //printf("ledLibinit!!\r\n");
+    buttonInit();
+    //printf("buttoninit!!\r\n");
+    buzzerInit();
+    
+    fndInit();
+    //printf("fndinit!!\r\n");
+    textlcdInit();
+    //printf("textlcdinit!!\r\n");
+    
+    pwmLedInit();
+    //printf("pwmledinit!!\r\n");
+    temp_init();    
+    //printf("tempinit!!\r\n");
+    //printf("INIT FINISHED \r\n");
+}
+
+void library_exit()
+{
+    ledsOn(0,0);
+    ledLibExit();
+
+    buttonExit();
+
+    buzzerExit();
+    
+    fndOff();
+    fndExit();
+
+    textlcdOff();
+    temp_off();
+
+    pwmInactiveAll();
+    
+    printf("EXIT FINISHED \r\n");
 }
