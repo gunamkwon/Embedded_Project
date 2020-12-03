@@ -23,7 +23,7 @@ int main(int argc,char **argv)
 	buzzerPlaySound(freIndex);
 	sleep(2);  // 2초동안 소리남
 	
-	buzzerStopSound();달
+	buzzerStopSound();
 	sleep(1); // 2초 후 소리 Stop한것 (1초는 그냥 기)
 	
 	buzzerPlaySound(freIndex);
