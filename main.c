@@ -145,7 +145,6 @@ void* MagnitudeSensor()
                 }
                 if(button_mode != 0) break;  
             }
-    
         }   
         else
         {
@@ -176,11 +175,12 @@ void* TempSensor()
                 }
                 else if(abs(temp_default - temp_now) > 20) // Waring Stage: Red
                 {
-                    // Need to Show TEXT LCD
+                // Need to Show TEXT LCD
                 //    buzzerRed();
                 //    pwmSetRed();
                 }
                 if(button_mode != 1) break;
+            }
         }
         else
         {

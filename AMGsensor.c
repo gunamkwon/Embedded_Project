@@ -77,13 +77,14 @@ int* getGyroscope()
 
 double getAverage(int *data)
 { 
-	double temp = data[1]*data[1]+ data[2]*data[2] + data[3]*data[3];
+	double temp = data[0]*data[0]+ data[1]*data[1] + data[2]*data[2];
 	return sqrt(temp); 
 }
 
 int setMagnitude(double avg_default,double avg_now)
 {
 	int magnitude;
+	printf("abs value: %d \r\n",abs(avg_default-avg_now));
 	switch( abs(avg_default-avg_now) )
 	{
 		case 0 ... 10:
