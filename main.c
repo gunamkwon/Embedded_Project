@@ -29,6 +29,7 @@ int button_mode = 0;
 
 BUTTON_MSG_T RxButton;
 pthread_t mode[3];
+pthread_t button;
 pthread_mutex_t lock;
 
 int msgID;
@@ -72,10 +73,12 @@ int main()
             pthread_create(&(mode[0]),NULL,&MagnitudeSensor,NULL);
             pthread_create(&(mode[1]),NULL,&TempSensor,NULL);
             pthread_create(&(mode[2]),NULL,&LevelSensor,NULL);
+            pthread_create(&button,NULL,&Button_Thread,NULL);
 
             pthread_join(mode[0],NULL);
             pthread_join(mode[1],NULL);
             pthread_join(mode[2],NULL);
+            pthread_join(&button,NULL);
 
         }
     }
@@ -92,7 +95,23 @@ int main()
     library_exit();
 }
 
-
+void* Button_Thread()
+{
+    while(1)
+    {
+        int msgret = 0;
+        msgret = msgrcv(msgID, &RxButton, sizeof(RxButton)-sizeof(RxButton.messageNum),0,0);
+        if(msgret == -1)    break;
+    }
+    printf("Threr is no trash message \r\n");
+    while(1)
+    {
+        int msgret = 0;
+        msgret = msgrcv(msgID, &RxButton, sizeof(RxButton)-sizeof(RxButton.messageNum),0,0);
+        printf("mode: %d \r\n",RxButton.keyInput);
+        button_mode = RxButton.keyInput;
+    }
+}
 void* MagnitudeSensor()
 {
     while(1)
@@ -124,16 +143,7 @@ void* MagnitudeSensor()
                 //    buzzerRed();
                 //    pwmSetRed();
                 }
-                // stopped here with msg function
-                /*int msgret =0;
-                msgret = msgrcv(msgID, &RxButton, sizeof(RxButton)-sizeof(RxButton.messageNum),0,0);
-                if(msgret != -1)
-                {
-                    printf("button_mode: %d \r\n",RxButton.keyInput);
-                    button_mode = RxButton.keyInput;
-                    if(button_mode != 0)
-                        break;
-                }*/        
+                if(button_mode != 0) break;  
             }
     
         }   
@@ -160,7 +170,7 @@ void* TempSensor()
                 fndDisp(temp_now,0);    // Display Temperature in FND
                 if( abs(temp_default - temp_now) > 10)    // Waring Stage: Yellow
                 {
-                    // Need to Show TEXT LCD
+                // Need to Show TEXT LCD
                 //    buzzerYellow();
                 //   pwmSetYellow();
                 }
@@ -170,15 +180,7 @@ void* TempSensor()
                 //    buzzerRed();
                 //    pwmSetRed();
                 }
-                int msgret =0;
-                msgret = msgrcv(msgID, &RxButton, sizeof(RxButton)-sizeof(RxButton.messageNum),0,0);
-                if(msgret != -1)
-                {
-                    button_mode = RxButton.keyInput;
-                    if(button_mode != 1)
-                        break;
-                }   
-            }
+                if(button_mode != 1) break;
         }
         else
         {
@@ -215,16 +217,7 @@ void* LevelSensor()
                 //    buzzerRed();
                 //    pwmSetRed();
                 }
-
-                int msgret =0;
-                msgret = msgrcv(msgID, &RxButton, sizeof(RxButton)-sizeof(RxButton.messageNum),0,0);
-                if(msgret != -1)
-                {
-                    printf("button_mode: %d \r\n",RxButton.keyInput);
-                    button_mode = RxButton.keyInput;
-                    if(button_mode != 2)
-                        break;
-                }              
+                if(button_mode != 2) break;              
             }
         }
 
@@ -242,21 +235,18 @@ void* LevelSensor()
 void library_init()
 {
     ledLibInit();
-    //printf("ledLibinit!!\r\n");
+
     buttonInit();
-    //printf("buttoninit!!\r\n");
+
     buzzerInit();
     
     fndInit();
-    //printf("fndinit!!\r\n");
+
     textlcdInit();
-    //printf("textlcdinit!!\r\n");
     
     pwmLedInit();
-    //printf("pwmledinit!!\r\n");
     temp_init();    
-    //printf("tempinit!!\r\n");
-    //printf("INIT FINISHED \r\n");
+    printf("INIT FINISHED \r\n");
 }
 
 void library_exit()
