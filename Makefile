@@ -1,4 +1,4 @@
-all: libMyPeri.a
+all: main.elf
 
 main.elf: main.c libMyPeri.a
 	arm-linux-gnueabi-gcc main.c -o main.elf -lpthread -lMyPeri -L. -lm

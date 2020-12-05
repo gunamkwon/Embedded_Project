@@ -11,7 +11,7 @@
 #include <linux/spi/spidev.h>
 
 char gbuf[10];
-char *buffer; int fd;
+static char *buffer; static int fd;
 
 int spi_init(char filename[40])
 {
@@ -38,7 +38,7 @@ char * spi_read_lm74(int file)
 {
 	int len;
 	
-	memset(gbuf, 0, sizeof( gbuf) );
+	memset(gbuf, 0, sizeof(gbuf) );
 	len = read(file, gbuf, 2);
 	if(len !=2)
 	{
@@ -52,13 +52,11 @@ char * spi_read_lm74(int file)
 int temp_init()
 {
 	fd = spi_init("/dev/spidev1.0");
-	return 1;
 }
 
 float getTemperature()
 {
 	buffer = (char*)spi_read_lm74(fd);
-
 	int value = 0;
 	value = (buffer[1] >> 3);
 	value += (buffer[0]) << 5;

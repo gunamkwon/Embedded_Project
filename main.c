@@ -7,6 +7,14 @@
 #include <sys/msg.h>
 #include <pthread.h>
 #include <math.h>
+#include <linux/spi/spidev.h>
+#include <stdint.h>
+#include <string.h>
+#include <getopt.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/ioctl.h>
+#include <linux/types.h>
 
 #include "AMGsensor.h"
 #include "button.h"
@@ -80,6 +88,7 @@ int main()
             pthread_join(mode[0],NULL);
             pthread_join(mode[1],NULL);
             pthread_join(mode[2],NULL);
+            pthread_join(button,NULL);
 
         }
     }
@@ -98,16 +107,18 @@ int main()
 
 void* Button_Thread()
 {
-    /*while(1)
-    {
-        int msgret = 0;
-        msgret = msgrcv(msgID, &RxButton, sizeof(RxButton)-sizeof(RxButton.messageNum),0,0);
-        if(msgret == -1)    break;
-    }*/
     while(1)
     {
         int msgret = 0;
         msgret = msgrcv(msgID, &RxButton, sizeof(RxButton)-sizeof(RxButton.messageNum),0,0);
+        if(msgret == -1)    break;
+    }
+    printf("There is no thrash\r\n");
+    while(1)
+    {
+        int msgret = 0;
+        msgret = msgrcv(msgID, &RxButton, sizeof(RxButton)-sizeof(RxButton.messageNum),0,0);
+        printf("msgret = %d \r\n",msgret);
         if(msgret !=-1){
 			printf("mode: %d \r\n",RxButton.keyInput);
 		}
@@ -154,17 +165,16 @@ void* MagnitudeSensor()
 				printf("mode2: %d\r\n",button_mode);
                 sleep(1);
                 if(button_mode != 0) i=1; 
+                
             }
+            pthread_mutex_unlock(&lock);
         }   
         else
         {
             pthread_mutex_unlock(&lock);
-            printf("Unlocked \r\n");
             usleep(1);
         }
-        printf("no else\r\n");
     }
-    printf("end\r\n");
 }
 
 void* TempSensor()
@@ -177,13 +187,12 @@ void* TempSensor()
         {   
 			printf("TempThread  Start\r\n");
             // Need to Show TextLCD about mode;
-            int temp_default = getTemperature();
-            printf("temperature_default: %d\r\n",temp_default);
+            double temp_default = getTemperature();
+            printf("temperature_default: %lf\r\n",temp_default);
             while(i!=1)
             {
-                int temp_now = getTemperature();
-                printf("temperature_now: %d \r\n",temp_now);
-                printf("temp sensor start!! %d \r\n",button_mode);
+                double temp_now = getTemperature();
+                printf("temperature_now: %lf \r\n",temp_now);
                 fndDisp(temp_now,0);    // Display Temperature in FND
                 if( abs(temp_default - temp_now) > 10)    // Waring Stage: Yellow
                 {
@@ -197,8 +206,13 @@ void* TempSensor()
                 //    buzzerRed();
                 //    pwmSetRed();
                 }
-                if(button_mode != 1) i=1;
+                button_mode = RxButton.keyInput;
+                printf("mode2: %d\r\n",button_mode);
+                sleep(1);
+                
+                if(button_mode != 1) i=1;    
             }
+            pthread_mutex_unlock(&lock);
         }
         else
         {
@@ -213,13 +227,14 @@ void* LevelSensor()
 {
     while(1)
     {
+        int i=0;
         // NEED TO SHOW TEXTLCD (MODE)
         pthread_mutex_lock(&lock);
         if(button_mode == 2)
         {
             int * level_default = getGyroscope();
             double levelavg_default = getAverage(level_default);
-            while(1)
+            while(i!=1)
             {
                 int * level_now = getGyroscope();
                 double levelavg_now = getAverage(level_now);
@@ -235,8 +250,12 @@ void* LevelSensor()
                 //    buzzerRed();
                 //    pwmSetRed();
                 }
-                if(button_mode != 2) break;              
+                button_mode = RxButton.keyInput;
+                printf("mode2: %d\r\n",button_mode);                
+                sleep(1);
+                if(button_mode != 2) break;                  
             }
+            pthread_mutex_unlock(&lock);
         }
 
         else

@@ -18,7 +18,7 @@
 BUTTON_MSG_T TxButton;
 pthread_t buttonTh_id;
 
-int fd,msgID;
+static int fd,msgID;
 int readSize, inputIndex;
 struct input_event stEvent;
 char buttonPath[200] = {0, };
@@ -60,7 +60,6 @@ void* buttonThFunc()
 {
 	while(1)
 	{
-		TxButton.pressed = 0;
 		readSize = read(fd, &stEvent, sizeof(stEvent));
 		
 		if(readSize != sizeof(stEvent) )
@@ -82,19 +81,17 @@ void* buttonThFunc()
 				default: break;
 			}
 			
-			if( stEvent.value ) 	{
+			if( stEvent.value ) 	
+			{
 				printf("pressed\n"); 
 				TxButton.pressed = 1;
-				TxButton.messageNum = 1;
-				if( TxButton.pressed == 1 )
-					msgsnd(msgID, &TxButton, sizeof(TxButton)-sizeof(TxButton.messageNum),0);
-				
+				TxButton.messageNum = 1;			
 			}
 			else
 			{
 					printf("released \n");
-					//if( TxButton.pressed == 1 )
-						//msgsnd(msgID, &TxButton, sizeof(TxButton)-sizeof(TxButton.messageNum),0);
+					if( TxButton.pressed == 1 )
+						msgsnd(msgID, &TxButton, sizeof(TxButton)-sizeof(TxButton.messageNum),0);
 						
 			}
 		}
