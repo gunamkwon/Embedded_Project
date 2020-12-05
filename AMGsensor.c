@@ -77,8 +77,14 @@ int* getGyroscope()
 
 double getAverage(int *data)
 { 
-	double temp = data[0]*data[0]+ data[1]*data[1] + data[2]*data[2];
-	return sqrt(temp); 
+	printf("data: %d %d %d \r\n",data[0],data[1],data[2]);
+	double temp= data[0]*data[0]+ data[1]*data[1] + data[2]*data[2];
+	printf("result before sqrt: %lf \r\n",temp);
+	double temp_n = temp/10000000;
+	printf("temp_result = %lf \r\n",temp_n);
+	double result = sqrtf(temp_n);
+	printf("result: %f \r\n",result);
+	return result; 
 }
 
 int setMagnitude(double avg_default,double avg_now)
@@ -87,35 +93,29 @@ int setMagnitude(double avg_default,double avg_now)
 	printf("abs value: %d \r\n",abs(avg_default-avg_now));
 	switch( abs(avg_default-avg_now) )
 	{
-		case 0 ... 10:
+		case 0 ... 500:
 			magnitude = 1;
 			break;		
-		case 11 ... 20:
+		case 501 ... 1500:
 			magnitude = 2;
 			break;		
-		case 21 ... 30:
+		case 1501 ... 2500:
 			magnitude = 3;
 			break;		
-		case 31 ... 40:
+		case 2501 ... 3500:
 			magnitude = 4;
 			break;		
-		case 41 ... 50:
+		case 3501 ... 4500:
 			magnitude = 5;
 			break;		
-		case 51 ... 60:
+		case 4501 ... 5500:
 			magnitude = 6;
 			break;		
-		case 61 ... 70:
+		case 5501 ... 6500:
 			magnitude = 7;
 			break;		
-		case 71 ... 80:
-			magnitude = 8;
-			break;
-		case 81 ... 90:
-			magnitude = 9;
-			break;
 		default:
-			magnitude = 10;
+			magnitude = 8;
 			break;
 	}
 	return magnitude;

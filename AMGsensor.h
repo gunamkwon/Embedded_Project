@@ -6,7 +6,7 @@ int* getAccelerometer_default();
 int* getMagnetometer();
 int* getGyroscope();
 
-double getAverage(int* returnvalue);
+double getAverage(int* data);
 int setMagnitude(double avg_default, double avg_now);
 
 #endif

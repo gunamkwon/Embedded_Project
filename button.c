@@ -60,6 +60,7 @@ void* buttonThFunc()
 {
 	while(1)
 	{
+		TxButton.pressed = 0;
 		readSize = read(fd, &stEvent, sizeof(stEvent));
 		
 		if(readSize != sizeof(stEvent) )
@@ -72,12 +73,12 @@ void* buttonThFunc()
 			printf("EV_KEY(");
 			switch(stEvent.code)
 			{
-				case KEY_HOME: 			printf("Home key):"); 			TxButton.keyInput = 1; 	break;
-				case KEY_SEARCH: 		printf("Search Key):"); 		TxButton.keyInput = 3; 	break;
-				case KEY_BACK: 			printf("Back key):"); 			TxButton.keyInput = 2; 	break;
-				case KEY_MENU: 			printf("Menu key):"); 			TxButton.keyInput = 4; 	break;
-				case KEY_VOLUMEDOWN: 	printf("Volume down key):"); 	TxButton.keyInput = 5;	break;
-				case KEY_VOLUMEUP:		printf("Volume up key):"); 		TxButton.keyInput = 6;	break;
+				case KEY_HOME: 			printf("Home key):"); 			TxButton.keyInput = 0; 	break;
+				case KEY_BACK: 			printf("Back key):"); 			TxButton.keyInput = 1; 	break;
+				case KEY_SEARCH: 		printf("Search Key):"); 		TxButton.keyInput = 2; 	break;
+				case KEY_MENU: 			printf("Menu key):"); 			TxButton.keyInput = 3; 	break;
+				case KEY_VOLUMEDOWN: 	printf("Volume down key):"); 	TxButton.keyInput = 4;	break;
+				case KEY_VOLUMEUP:		printf("Volume up key):"); 		TxButton.keyInput = 5;	break;
 				default: break;
 			}
 			
@@ -85,12 +86,16 @@ void* buttonThFunc()
 				printf("pressed\n"); 
 				TxButton.pressed = 1;
 				TxButton.messageNum = 1;
+				if( TxButton.pressed == 1 )
+					msgsnd(msgID, &TxButton, sizeof(TxButton)-sizeof(TxButton.messageNum),0);
+				
 			}
 			else
 			{
 					printf("released \n");
-					if( TxButton.pressed == 1 )
-						msgsnd(msgID, &TxButton, sizeof(TxButton)-sizeof(TxButton.messageNum),0);
+					//if( TxButton.pressed == 1 )
+						//msgsnd(msgID, &TxButton, sizeof(TxButton)-sizeof(TxButton.messageNum),0);
+						
 			}
 		}
 		else ; // do Nothing
