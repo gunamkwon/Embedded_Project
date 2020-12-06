@@ -145,7 +145,11 @@ void* MagnitudeSensor()
 				int *accel_now = getAccelerometer();
                 double accelavg_now = getAverage(accel_now);
                 printf("accelavg_now: %f \r\n",accelavg_now);
-                //*((int *)shmemAddr) = ??;
+                int *data = (int *)shmemAddr;
+                for(int i=0;i<3;i++){
+                    data[i] = -25+ i*10;
+                    printf("sharedMemory %d: %d\r\n",i,data[i]);
+                }
             
                 int magnitude = setMagnitude(accelavg_default,accelavg_now);
                 printf("magnitude: %d\r\n",magnitude);
@@ -153,13 +157,13 @@ void* MagnitudeSensor()
                 
                 if(magnitude >= 3 && magnitude <= 6) // Warning Stage: Yellow
                 {
-                //    buzzerYellow();
-                //    pwmSetYellow();
+                    //execl();//    buzzerYellow();
+                    pwmSetYellow();
                 } 
                 else if(magnitude > 6) // Warning Stage: Red
                 {
-                //    buzzerRed();
-                //    pwmSetRed();
+                    //execl();//    buzzerRed();
+                    pwmSetRed();
                 }
                 button_mode = RxButton.keyInput;
 				printf("mode2: %d\r\n",button_mode);
@@ -181,30 +185,33 @@ void* TempSensor()
 {   
     while(1)
     {	
+        
 		int i=0;
         pthread_mutex_lock(&lock);
         if(button_mode == 1)
         {   
 			printf("TempThread  Start\r\n");
             // Need to Show TextLCD about mode;
-            double temp_default = getTemperature();
-            printf("temperature_default: %lf\r\n",temp_default);
             while(i!=1)
             {
                 double temp_now = getTemperature();
                 printf("temperature_now: %lf \r\n",temp_now);
                 fndDisp(temp_now,0);    // Display Temperature in FND
-                if( abs(temp_default - temp_now) > 10)    // Waring Stage: Yellow
+                if(temp_now > 31 && temp_now <= 33)    // Waring Stage: Yellow
                 {
                 // Need to Show TEXT LCD
-                //    buzzerYellow();
-                //   pwmSetYellow();
+                    //execl();//    buzzerYellow();
+                    pwmSetYellow();
                 }
-                else if(abs(temp_default - temp_now) > 20) // Waring Stage: Red
+                else if( temp_now > 33) // Waring Stage: Red
                 {
                 // Need to Show TEXT LCD
-                //    buzzerRed();
-                //    pwmSetRed();
+                    //execl();//    buzzerRed();
+                    pwmSetRed();
+                }
+                else
+                {
+                    pwmSetGreen();
                 }
                 button_mode = RxButton.keyInput;
                 printf("mode2: %d\r\n",button_mode);
@@ -241,14 +248,14 @@ void* LevelSensor()
                 if(abs(levelavg_default - levelavg_now) > 10) // Waring Stage: Yellow
                 {
                     // NEED TO SHOW TEXTLCD (MODE)
-                //    buzzerYellow();
-                //    pwmSetYellow();
+                    //execl();//    buzzerYellow();
+                    pwmSetYellow();
                 }
                 else if(abs(levelavg_default - levelavg_now) > 20) // Waring Stage: Red
                 {
                     // NEED TO SHOW TEXTLCD (MODE)
-                //    buzzerRed();
-                //    pwmSetRed();
+                    //execl();//    buzzerRed();
+                    pwmSetRed();
                 }
                 button_mode = RxButton.keyInput;
                 printf("mode2: %d\r\n",button_mode);                
