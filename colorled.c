@@ -132,6 +132,27 @@ int pwmStartAll(void)
 	
 }
 
+int pwmSetGreen()
+{
+	pwmSetPercent(0,0);
+	pwmSetPercent(100,1);
+	pwmSetPercent(0,2);
+}
+
+int pwmSetRed()
+{
+	pwmSetPercent(100,0);
+	pwmSetPercent(0,1);
+	pwmSetPercent(0,2);
+}
+
+int pwmSetYellow()
+{
+	pwmSetPercent(100,0);
+	pwmSetPercent(50,1);
+	pwmSetPercent(0,2);
+}
+
 int pwmLedInit()
 {
 	pwmActiveAll();
