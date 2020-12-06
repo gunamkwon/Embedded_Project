@@ -20,7 +20,7 @@ typedef struct FNDWriteDataForm_tag
 	char DataValid[FND_DATA_BUFF_LEN];
 }stFndWriteForm,*pStFndWriteForm;
 
-int fd;
+static int fd;
 stFndWriteForm stWriteData;
 
 int fndInit()
@@ -35,6 +35,7 @@ int fndInit()
 
 int fndDisp(int num,int dotflag)
 {
+	
 	int temp,i;
 	stFndWriteForm stWriteData;
 	for(i=0; i< MAX_FND_NUM; i++)
@@ -42,7 +43,6 @@ int fndDisp(int num,int dotflag)
 		stWriteData.DataDot[i] = (dotflag & (0x1 << i)) ? 1:0;
 		stWriteData.DataValid[i] = 1;
 	}
-	
 	// if 6 fnd
 	temp = num % 1000000; stWriteData.DataNumeric[0] = temp / 100000;
 	temp = num % 100000; stWriteData.DataNumeric[1] = temp / 10000;
