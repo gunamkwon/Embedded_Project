@@ -1,7 +1,7 @@
 all: main.elf
 
 main.elf: main.c libMyPeri.a
-	arm-linux-gnueabi-gcc main.c -o main.elf -lpthread -lMyPeri -L. -lm
+	arm-linux-gnueabi-gcc main.c -o main.elf -lpthread -lMyPeri -L. -lm --static
 libMyPeri.a: led.o button.o buzzer.o fnd.o textlcd.o colorled.o temp.o AMGsensor.o
 	arm-linux-gnueabi-ar rc libMyPeri.a led.o button.o buzzer.o fnd.o textlcd.o colorled.o temp.o AMGsensor.o
 AMGsensor.o: AMGsensor.c AMGsensor.h
