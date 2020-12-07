@@ -8,8 +8,8 @@
 #define MAGNEPATH "/sys/class/misc/FreescaleMagnetometer/"
 #define GYROPATH "/sys/class/misc/FreescaleGyroscope/"
 
-int fd =0;
-FILE *fp = NULL;
+static int fd =0;
+static FILE *fp = NULL;
 
 int* getAccelerometer()
 {

@@ -48,6 +48,7 @@ char *shmemAddr;
 int main()
 {
     msgID = msgget(MESSAGE_ID,IPC_CREAT|0666);
+
     pid_t pid;
 
     pid = fork();
@@ -95,7 +96,7 @@ int main()
 
     else if(pid == 0) // child process
     {
-        execl("/home/ecube/GL","graph_arm",(char *)0); // Excuting Graph
+        //execl("/home/ecube/GL","graph_arm",(char *)0); // Excuting Graph
         while(1);
     }
 
@@ -133,6 +134,7 @@ void* MagnitudeSensor()
         pthread_mutex_lock(&lock);
         if(button_mode == 0)
         { 
+            textlcdwrite("Magnitude Sensor","Stage: Normal",0);
 			for(int i=0;i<5;i++){
 				int *trash = getAccelerometer_default();
 			}
@@ -157,13 +159,20 @@ void* MagnitudeSensor()
                 
                 if(magnitude >= 3 && magnitude <= 6) // Warning Stage: Yellow
                 {
+                    textlcdwrite("Warning: Yellow","",2);
                     //execl();//    buzzerYellow();
                     pwmSetYellow();
                 } 
                 else if(magnitude > 6) // Warning Stage: Red
                 {
+                    textlcdwrite("Warning: RED   ","",2);
                     //execl();//    buzzerRed();
                     pwmSetRed();
+                }
+                else
+                {
+                    textlcdwrite("Stage: Normal","",2);
+                    pwmSetGreen();
                 }
                 button_mode = RxButton.keyInput;
 				printf("mode2: %d\r\n",button_mode);
@@ -190,8 +199,8 @@ void* TempSensor()
         pthread_mutex_lock(&lock);
         if(button_mode == 1)
         {   
+            textlcdwrite("Temp Sensor     ","Stage: Normal",0);
 			printf("TempThread  Start\r\n");
-            // Need to Show TextLCD about mode;
             while(i!=1)
             {
                 double temp_now = getTemperature();
@@ -199,18 +208,19 @@ void* TempSensor()
                 fndDisp(temp_now,0);    // Display Temperature in FND
                 if(temp_now > 31 && temp_now <= 33)    // Waring Stage: Yellow
                 {
-                // Need to Show TEXT LCD
+                    textlcdwrite("Warning: Yellow","",2);
                     //execl();//    buzzerYellow();
                     pwmSetYellow();
                 }
                 else if( temp_now > 33) // Waring Stage: Red
                 {
-                // Need to Show TEXT LCD
+                    textlcdwrite("Warning: RED   ","",2);
                     //execl();//    buzzerRed();
                     pwmSetRed();
                 }
                 else
                 {
+                    textlcdwrite("Stage: Normal","",2);
                     pwmSetGreen();
                 }
                 button_mode = RxButton.keyInput;
@@ -235,27 +245,32 @@ void* LevelSensor()
     while(1)
     {
         int i=0;
-        // NEED TO SHOW TEXTLCD (MODE)
         pthread_mutex_lock(&lock);
         if(button_mode == 2)
         {
+            textlcdwrite("Level Sensor    ","Stage: Normal",0);
             int * level_default = getGyroscope();
             double levelavg_default = getAverage(level_default);
             while(i!=1)
             {
                 int * level_now = getGyroscope();
                 double levelavg_now = getAverage(level_now);
-                if(abs(levelavg_default - levelavg_now) > 10) // Waring Stage: Yellow
+                if(abs(levelavg_default - levelavg_now) > 10 && abs(levelavg_default - levelavg_now) <= 20) // Waring Stage: Yellow
                 {
-                    // NEED TO SHOW TEXTLCD (MODE)
+                    textlcdwrite("Warning: Yellow","",2);// NEED TO SHOW TEXTLCD (MODE)
                     //execl();//    buzzerYellow();
                     pwmSetYellow();
                 }
                 else if(abs(levelavg_default - levelavg_now) > 20) // Waring Stage: Red
                 {
-                    // NEED TO SHOW TEXTLCD (MODE)
+                    textlcdwrite("Warning: RED   ","",2);
                     //execl();//    buzzerRed();
                     pwmSetRed();
+                }
+                else
+                {
+                    textlcdwrite("Stage: Normal","",2);
+                    pwmSetGreen();
                 }
                 button_mode = RxButton.keyInput;
                 printf("mode2: %d\r\n",button_mode);                

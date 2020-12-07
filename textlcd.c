@@ -40,7 +40,7 @@ typedef struct TextLCD_tag
 }stTextLCD,*pStTextLCD;
 
 stTextLCD stlcd;
-int fd;
+static int fd;
 
 int textlcdInit()
 {
