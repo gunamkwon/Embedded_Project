@@ -89,7 +89,7 @@ int buzzerPlaySound(int scale)
 	}
 }
 
-int buzzerYellow()
+void buzzerYellow()
 {
 	for(;;)
 	{	
@@ -98,7 +98,7 @@ int buzzerYellow()
 	}
 }
 
-int buzzerRed()
+void buzzerRed()
 {
 	for(;;)
 	{
