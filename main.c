@@ -96,8 +96,11 @@ int main()
 
     else if(pid == 0) // child process
     {
-        //execl("/home/ecube/GL","graph_arm",(char *)0); // Excuting Graph
-        while(1);
+        execl("/home/ecube/PROJECT","./bitmap.out",(char *)0); // Excuting Graph
+        while(1){
+            if(button_mode==5)break;
+        }
+        
     }
 
     else
@@ -149,7 +152,7 @@ void* MagnitudeSensor()
                 printf("accelavg_now: %f \r\n",accelavg_now);
                 int *data = (int *)shmemAddr;
                 for(int i=0;i<3;i++){
-                    data[i] = -25+ i*10;
+                    data[i] = accel_now[i]/10;
                     printf("sharedMemory %d: %d\r\n",i,data[i]);
                 }
             
@@ -160,13 +163,13 @@ void* MagnitudeSensor()
                 if(magnitude >= 3 && magnitude <= 6) // Warning Stage: Yellow
                 {
                     textlcdwrite("Warning: Yellow","",2);
-                    //execl();//    buzzerYellow();
+                    buzzerYellow();  // execl();?
                     pwmSetYellow();
                 } 
                 else if(magnitude > 6) // Warning Stage: Red
                 {
                     textlcdwrite("Warning: RED   ","",2);
-                    //execl();//    buzzerRed();
+                    buzzerRed();    
                     pwmSetRed();
                 }
                 else
@@ -209,13 +212,13 @@ void* TempSensor()
                 if(temp_now > 31 && temp_now <= 33)    // Waring Stage: Yellow
                 {
                     textlcdwrite("Warning: Yellow","",2);
-                    //execl();//    buzzerYellow();
+                    buzzerYellow(); //execl();
                     pwmSetYellow();
                 }
                 else if( temp_now > 33) // Waring Stage: Red
                 {
                     textlcdwrite("Warning: RED   ","",2);
-                    //execl();//    buzzerRed();
+                    buzzerRed();//execl();//   
                     pwmSetRed();
                 }
                 else
@@ -258,13 +261,13 @@ void* LevelSensor()
                 if(abs(levelavg_default - levelavg_now) > 10 && abs(levelavg_default - levelavg_now) <= 20) // Waring Stage: Yellow
                 {
                     textlcdwrite("Warning: Yellow","",2);// NEED TO SHOW TEXTLCD (MODE)
-                    //execl();//    buzzerYellow();
+                    buzzerYellow(); //execl();//    
                     pwmSetYellow();
                 }
                 else if(abs(levelavg_default - levelavg_now) > 20) // Waring Stage: Red
                 {
                     textlcdwrite("Warning: RED   ","",2);
-                    //execl();//    buzzerRed();
+                    buzzerRed(); //execl();//    
                     pwmSetRed();
                 }
                 else
