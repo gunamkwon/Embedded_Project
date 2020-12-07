@@ -76,8 +76,9 @@ void* buttonThFunc()
 				case KEY_BACK: 			printf("Back key):"); 			TxButton.keyInput = 1; 	break;
 				case KEY_SEARCH: 		printf("Search Key):"); 		TxButton.keyInput = 2; 	break;
 				case KEY_MENU: 			printf("Menu key):"); 			TxButton.keyInput = 3; 	break;
-				case KEY_VOLUMEDOWN: 	printf("Volume down key):"); 	TxButton.keyInput = 4;	break;
-				case KEY_VOLUMEUP:		printf("Volume up key):"); 		TxButton.keyInput = 5;	break;
+				case KEY_VOLUMEUP:		printf("Volume up key):"); 		TxButton.keyInput = 4;	break;
+				case KEY_VOLUMEDOWN: 	printf("Volume down key):"); 	TxButton.keyInput = 5;	break;
+				
 				default: break;
 			}
 			

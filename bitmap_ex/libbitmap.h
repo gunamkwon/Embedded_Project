@@ -11,5 +11,4 @@ void fb_doubleBufSwap(void);
 void fb_close(void);
 void fb_write(char* picData);
 void draw_background(char *data);
-void drawgraph(char *data);
 #endif

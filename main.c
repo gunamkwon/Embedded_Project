@@ -45,10 +45,10 @@ int msgID;
 int shmID;
 char *shmemAddr;
 
+
 int main()
 {
     msgID = msgget(MESSAGE_ID,IPC_CREAT|0666);
-
     pid_t pid;
 
     pid = fork();
@@ -57,7 +57,6 @@ int main()
    { 
         while( !(waitpid(pid,&status,WNOHANG)) ) 
         {
- 
             // Shared Memory
             shmID = shmget((key_t)1234,1024,IPC_CREAT|0666);
             if(shmID == -1)
@@ -96,11 +95,7 @@ int main()
 
     else if(pid == 0) // child process
     {
-        execl("/home/ecube/PROJECT","./bitmap.out",(char *)0); // Excuting Graph
-        while(1){
-            if(button_mode==5)break;
-        }
-        
+        execl("/home/ecube/PROJECT/bitmap.out","bitmap.out",(char *)0); // Excuting GraphWW
     }
 
     else
@@ -111,6 +106,7 @@ int main()
 
 void* Button_Thread()
 {
+    printf("Button Thread Start\r\n");
     while(1)
     {
         int msgret = 0;
@@ -162,24 +158,27 @@ void* MagnitudeSensor()
                 
                 if(magnitude >= 3 && magnitude <= 6) // Warning Stage: Yellow
                 {
+                    buzzerStopSound();
                     textlcdwrite("Warning: Yellow","",2);
-                    buzzerYellow();  // execl();?
+                //    buzzerYellow();  // execl();?
                     pwmSetYellow();
                 } 
                 else if(magnitude > 6) // Warning Stage: Red
                 {
+                    buzzerStopSound();
                     textlcdwrite("Warning: RED   ","",2);
-                    buzzerRed();    
+                //    buzzerRed();    
                     pwmSetRed();
                 }
                 else
                 {
+                    buzzerStopSound();
                     textlcdwrite("Stage: Normal","",2);
                     pwmSetGreen();
                 }
                 button_mode = RxButton.keyInput;
 				printf("mode2: %d\r\n",button_mode);
-                sleep(1);
+                usleep(100000);
                 if(button_mode != 0) i=1; 
                 
             }
@@ -187,6 +186,8 @@ void* MagnitudeSensor()
         }   
         else
         {
+            ledsOn(0,0);
+            buzzerStopSound();
             pthread_mutex_unlock(&lock);
             usleep(1);
         }
@@ -211,24 +212,27 @@ void* TempSensor()
                 fndDisp(temp_now,0);    // Display Temperature in FND
                 if(temp_now > 31 && temp_now <= 33)    // Waring Stage: Yellow
                 {
+                    buzzerStopSound();
                     textlcdwrite("Warning: Yellow","",2);
-                    buzzerYellow(); //execl();
+                //    buzzerYellow(); //execl();
                     pwmSetYellow();
                 }
                 else if( temp_now > 33) // Waring Stage: Red
                 {
+                    buzzerStopSound();
                     textlcdwrite("Warning: RED   ","",2);
-                    buzzerRed();//execl();//   
+                //    buzzerRed();//execl();//   
                     pwmSetRed();
                 }
                 else
                 {
+                    buzzerStopSound();
                     textlcdwrite("Stage: Normal","",2);
                     pwmSetGreen();
                 }
                 button_mode = RxButton.keyInput;
                 printf("mode2: %d\r\n",button_mode);
-                sleep(1);
+                usleep(100000);
                 
                 if(button_mode != 1) i=1;    
             }
@@ -236,8 +240,9 @@ void* TempSensor()
         }
         else
         {
-                pthread_mutex_unlock(&lock);
-                usleep(1);
+            buzzerStopSound();
+            pthread_mutex_unlock(&lock);
+            usleep(1);
         }
     }
 }
@@ -260,24 +265,27 @@ void* LevelSensor()
                 double levelavg_now = getAverage(level_now);
                 if(abs(levelavg_default - levelavg_now) > 10 && abs(levelavg_default - levelavg_now) <= 20) // Waring Stage: Yellow
                 {
+                    buzzerStopSound();
                     textlcdwrite("Warning: Yellow","",2);// NEED TO SHOW TEXTLCD (MODE)
-                    buzzerYellow(); //execl();//    
+                //    buzzerYellow(); //execl();//    
                     pwmSetYellow();
                 }
                 else if(abs(levelavg_default - levelavg_now) > 20) // Waring Stage: Red
                 {
+                    buzzerStopSound();
                     textlcdwrite("Warning: RED   ","",2);
-                    buzzerRed(); //execl();//    
+                //    buzzerRed(); //execl();//    
                     pwmSetRed();
                 }
                 else
                 {
+                    buzzerStopSound();
                     textlcdwrite("Stage: Normal","",2);
                     pwmSetGreen();
                 }
                 button_mode = RxButton.keyInput;
                 printf("mode2: %d\r\n",button_mode);                
-                sleep(1);
+                usleep(100000);
                 if(button_mode != 2) break;                  
             }
             pthread_mutex_unlock(&lock);
@@ -285,6 +293,7 @@ void* LevelSensor()
 
         else
         {
+            buzzerStopSound();
             pthread_mutex_unlock(&lock);
             usleep(1);
         }
@@ -314,6 +323,7 @@ void library_init()
 void library_exit()
 {
     ledsOn(0,0);
+    buzzerStopSound();
     ledLibExit();
 
     buttonExit();
