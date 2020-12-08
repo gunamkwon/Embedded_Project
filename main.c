@@ -139,17 +139,17 @@ void* MagnitudeSensor()
 			}
             int *accel_default = getAccelerometer_default();
             double accelavg_default = getAverage(accel_default);
-            printf("accelavg_default: %lf \r\n",accelavg_default);
+            //printf("accelavg_default: %lf \r\n",accelavg_default);
             
             while(i!=1)
             {   
 				int *accel_now = getAccelerometer();
                 double accelavg_now = getAverage(accel_now);
-                printf("accelavg_now: %f \r\n",accelavg_now);
+                //printf("accelavg_now: %f \r\n",accelavg_now);
                 int *data = (int *)shmemAddr;
                 for(int i=0;i<3;i++){
                     data[i] = accel_now[i]/10;
-                    printf("sharedMemory %d: %d\r\n",i,data[i]);
+                    //printf("sharedMemory %d: %d\r\n",i,data[i]);
                 }
             
                 int magnitude = setMagnitude(accelavg_default,accelavg_now);
@@ -178,7 +178,7 @@ void* MagnitudeSensor()
                 }
                 button_mode = RxButton.keyInput;
 				printf("mode2: %d\r\n",button_mode);
-                usleep(100000);
+                usleep(10000);
                 if(button_mode != 0) i=1; 
                 
             }
@@ -232,7 +232,7 @@ void* TempSensor()
                 }
                 button_mode = RxButton.keyInput;
                 printf("mode2: %d\r\n",button_mode);
-                usleep(100000);
+                usleep(10000);
                 
                 if(button_mode != 1) i=1;    
             }
@@ -285,7 +285,7 @@ void* LevelSensor()
                 }
                 button_mode = RxButton.keyInput;
                 printf("mode2: %d\r\n",button_mode);                
-                usleep(100000);
+                usleep(10000);
                 if(button_mode != 2) break;                  
             }
             pthread_mutex_unlock(&lock);
