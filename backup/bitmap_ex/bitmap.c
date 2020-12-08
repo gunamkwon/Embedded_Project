@@ -120,7 +120,7 @@ void* drawGraph()
                 }
                 
                 printf("\t accel_ex: %d %d %d \r\n",accel_ex1,accel_ex2,accel_ex3);
-                usleep(1);
+                usleep(10);
                 accel_data = (int *)shmemAddr;
                 printf("accel_data: %d %d %d\r\n",accel_data[0],accel_data[1],accel_data[2]);
                 if( ( (accel[0] = 300 - accel_data[0]/10) < 0) || ( (accel[0] = 300 - accel_data[0]/10) > 600) )
@@ -165,12 +165,11 @@ void* drawGraph()
 
                     if((accel[0]+x)>accel_ex1 ) x-=1;    else if((accel[0]+x)<accel_ex1)  x+=1; else    getdata_x=1;
                     if((accel[1]+y)>accel_ex2 ) y-=1;    else if((accel[1]+y)<accel_ex2)  y+=1; else    getdata_y=1;
-                    if((accel[2]+z)>accel_ex3 ) z-=1;    else if((accel[2]+z)<accel_ex3) z+=1; else     getdata_z=1;
-                    cnt++;    
+                    if((accel[2]+z)>accel_ex3 ) z-=1;    else if((accel[2]+z)<accel_ex3) z+=1; else     getdata_z=1; 
                     fb_write(data);
-                    usleep(10000);
+                    //usleep(1);
                     if(getdata_x==1&&getdata_y==1&&getdata_z==1)
-                    {   get_data=1; getdata_x=0; getdata_y=0; getdata_z=0;  x=0;y=0;z=0;}
+                    {   get_data=1; getdata_x=0; getdata_y=0; getdata_z=0;  x=0;y=0;z=0; cnt++;}
                 }
             }
             

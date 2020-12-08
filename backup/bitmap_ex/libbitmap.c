@@ -184,6 +184,22 @@ void draw_background(char *data)
         data[((WIDTH*(585))+WIDTH-900-20-i)*3+1] = 0xff;
         data[((WIDTH*(585))+WIDTH-900-20-i)*3+2] = 0xff;
     }
+    // draw z
+    for(int i=0;i<10;i++)
+    {
+        data[( (WIDTH*(590))+WIDTH-900-45-i )*3+0] = 0xff;
+        data[( (WIDTH*(590))+WIDTH-900-45-i )*3+1] = 0xff;
+        data[( (WIDTH*(590))+WIDTH-900-45-i )*3+2] = 0xff;
+        
+        data[( (WIDTH*(580+i))+WIDTH-900-55+i )*3+0] = 0xff;
+        data[( (WIDTH*(580+i))+WIDTH-900-55+i )*3+1] = 0xff;
+        data[( (WIDTH*(580+i))+WIDTH-900-55+i )*3+2] = 0xff;
+
+        data[( (WIDTH*(580))+WIDTH-900-45-i )*3+0] = 0xff;
+        data[( (WIDTH*(580))+WIDTH-900-45-i )*3+1] = 0xff;
+        data[( (WIDTH*(580))+WIDTH-900-45-i )*3+2] = 0xff; 
+    }
+
     // draw RED Square + INFO
     for(int i=0;i<20;i++)
     {
@@ -201,6 +217,23 @@ void draw_background(char *data)
         data[((WIDTH*(555))+WIDTH-900-20-i)*3+1] = 0xff;
         data[((WIDTH*(555))+WIDTH-900-20-i)*3+2] = 0xff;
     }
+    //draw y
+    for(int i=0;i<10;i++)
+    {
+
+        data[( (WIDTH*(545+i))+WIDTH-900-60+i )*3+0] = 0xff;
+        data[( (WIDTH*(545+i))+WIDTH-900-60+i )*3+1] = 0xff;
+        data[( (WIDTH*(545+i))+WIDTH-900-60+i )*3+2] = 0xff;
+        
+        data[( (WIDTH*(545+i))+WIDTH-900-40-i )*3+0] = 0xff;
+        data[( (WIDTH*(545+i))+WIDTH-900-40-i )*3+1] = 0xff;
+        data[( (WIDTH*(545+i))+WIDTH-900-40-i )*3+2] = 0xff; 
+
+        data[( (WIDTH*(555+i))+WIDTH-900-50 )*3+0] = 0xff;
+        data[( (WIDTH*(555+i))+WIDTH-900-50 )*3+1] = 0xff;
+        data[( (WIDTH*(555+i))+WIDTH-900-50 )*3+2] = 0xff;
+    }
+
     // draw GREEN Square + INFO
     for(int i=0;i<20;i++)
     {
@@ -218,6 +251,17 @@ void draw_background(char *data)
         data[( (WIDTH*(525))+WIDTH-900-20-i )*3+1] = 0xff;
         data[( (WIDTH*(525))+WIDTH-900-20-i )*3+2] = 0xff;
     }
-    
+    //draw x
+    for(int i=0;i<20;i++)
+    {
+        data[( (WIDTH*(515+i))+WIDTH-900-40-i )*3+0] = 0xff;
+        data[( (WIDTH*(515+i))+WIDTH-900-40-i )*3+1] = 0xff;
+        data[( (WIDTH*(515+i))+WIDTH-900-40-i )*3+2] = 0xff;
+        
+        data[( (WIDTH*(515+i))+WIDTH-900-60+i )*3+0] = 0xff;
+        data[( (WIDTH*(515+i))+WIDTH-900-60+i )*3+1] = 0xff;
+        data[( (WIDTH*(515+i))+WIDTH-900-60+i )*3+2] = 0xff; 
+    }
+
     fb_write(data);
 }

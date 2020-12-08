@@ -218,6 +218,20 @@ void draw_background(char *data)
         data[( (WIDTH*(525))+WIDTH-900-20-i )*3+1] = 0xff;
         data[( (WIDTH*(525))+WIDTH-900-20-i )*3+2] = 0xff;
     }
+
+    //draw z
+    for(int i=0;i<10;i++)
+    {
+        data[( (WIDTH*(522))+WIDTH-900-10-i )*3+0] = 0xff;
+        data[( (WIDTH*(522))+WIDTH-900-10-i )*3+1] = 0xff;
+        data[( (WIDTH*(522))+WIDTH-900-10-i )*3+2] = 0xff;
+        
+        data[( (WIDTH*(527))+WIDTH-900-15-i )*3+0] = 0xff;
+        data[( (WIDTH*(527))+WIDTH-900-15-i )*3+1] = 0xff;
+        data[( (WIDTH*(527))+WIDTH-900-15-i )*3+2] = 0xff; 
+    }
+
+    
     
     fb_write(data);
 }

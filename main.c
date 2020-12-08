@@ -178,7 +178,7 @@ void* MagnitudeSensor()
                 }
                 button_mode = RxButton.keyInput;
 				printf("mode2: %d\r\n",button_mode);
-                usleep(10000);
+                usleep(1000);
                 if(button_mode != 0) i=1; 
                 
             }
@@ -232,7 +232,7 @@ void* TempSensor()
                 }
                 button_mode = RxButton.keyInput;
                 printf("mode2: %d\r\n",button_mode);
-                usleep(10000);
+                usleep(1000);
                 
                 if(button_mode != 1) i=1;    
             }
@@ -285,7 +285,7 @@ void* LevelSensor()
                 }
                 button_mode = RxButton.keyInput;
                 printf("mode2: %d\r\n",button_mode);                
-                usleep(10000);
+                usleep(1000);
                 if(button_mode != 2) break;                  
             }
             pthread_mutex_unlock(&lock);
