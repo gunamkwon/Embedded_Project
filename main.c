@@ -25,20 +25,22 @@
 #include "textlcd.h"
 #include "led.h"
 
-
 void library_init();
 void library_exit();
 void* TempSensor();
 void* MagnitudeSensor();
 void* LevelSensor();
 void* Button_Thread();
+void* EXIT_P();
+void f_buzzerRed();
+void f_buzzerYellow();
 
 int status = 0;
-static int button_mode = 0;
 
 BUTTON_MSG_T RxButton;
 pthread_t mode[3];
 pthread_t button;
+pthread_t exit_program;
 pthread_mutex_t lock;
 
 int msgID;
@@ -46,8 +48,10 @@ int shmID;
 char *shmemAddr;
 
 
+
 int main()
 {
+	button_mode = 0;
     msgID = msgget(MESSAGE_ID,IPC_CREAT|0666);
     pid_t pid;
 
@@ -78,18 +82,21 @@ int main()
                 return 1;
             }
 
-            library_init();
+            library_init(); 
+
             pthread_create(&button,NULL,&Button_Thread,NULL);
             pthread_create(&(mode[0]),NULL,&MagnitudeSensor,NULL);
             pthread_create(&(mode[1]),NULL,&TempSensor,NULL);
             pthread_create(&(mode[2]),NULL,&LevelSensor,NULL);
+            pthread_create(&exit_program,NULL,&EXIT_P,NULL);
+
             
 
             pthread_join(mode[0],NULL);
             pthread_join(mode[1],NULL);
             pthread_join(mode[2],NULL);
-            pthread_join(button,NULL);
-
+            pthread_join(exit_program,NULL);
+			pthread_join(button,NULL);
         }
     }
 
@@ -101,7 +108,6 @@ int main()
     else
         printf("Fail to Fork\r\n");
 
-    library_exit();
 }
 
 void* Button_Thread()
@@ -125,6 +131,31 @@ void* Button_Thread()
     }
 } 
 
+void *EXIT_P()
+{
+        pthread_mutex_lock(&lock);
+        if(button_mode == 3 || button_mode == 4 )
+        {   
+			printf("EXIT Program");
+            textlcdwrite("","",0);
+            ledsOn(0,0);
+            pwmInactiveAll();
+			buzzerStopSound();
+			fndOff();
+			temp_off();
+			
+			textlcdOff();
+			ledLibExit();
+
+			buzzerExit(); 
+			fndExit(); 
+			pthread_cancel(button);
+			printf("EXIT FINISHED \r\n"); 
+		}
+		pthread_mutex_unlock(&lock);
+		usleep(1);
+}
+
 void* MagnitudeSensor()
 {
     while(1)
@@ -133,6 +164,7 @@ void* MagnitudeSensor()
         pthread_mutex_lock(&lock);
         if(button_mode == 0)
         { 
+			fndOff();
             textlcdwrite("Magnitude Sensor","Stage: Normal",0);
 			for(int i=0;i<5;i++){
 				int *trash = getAccelerometer_default();
@@ -160,14 +192,14 @@ void* MagnitudeSensor()
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: Yellow","",2);
-                //    buzzerYellow();  // execl();?
+                    f_buzzerYellow();
                     pwmSetYellow();
                 } 
                 else if(magnitude > 6) // Warning Stage: Red
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: RED   ","",2);
-                //    buzzerRed();    
+                    f_buzzerRed();
                     pwmSetRed();
                 }
                 else
@@ -186,6 +218,7 @@ void* MagnitudeSensor()
         }   
         else
         {
+			
             ledsOn(0,0);
             buzzerStopSound();
             pthread_mutex_unlock(&lock);
@@ -214,14 +247,15 @@ void* TempSensor()
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: Yellow","",2);
-                //    buzzerYellow(); //execl();
+					f_buzzerYellow();
+
                     pwmSetYellow();
                 }
                 else if( temp_now > 33) // Waring Stage: Red
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: RED   ","",2);
-                //    buzzerRed();//execl();//   
+					f_buzzerRed(); 
                     pwmSetRed();
                 }
                 else
@@ -256,25 +290,27 @@ void* LevelSensor()
         pthread_mutex_lock(&lock);
         if(button_mode == 2)
         {
+			fndOff();
             textlcdwrite("Level Sensor    ","Stage: Normal",0);
-            int * level_default = getGyroscope();
+            int * level_default = getGyroscope_default();
             double levelavg_default = getAverage(level_default);
+            
             while(i!=1)
             {
-                int * level_now = getGyroscope();
+                int *level_now = getGyroscope();
                 double levelavg_now = getAverage(level_now);
-                if(abs(levelavg_default - levelavg_now) > 10 && abs(levelavg_default - levelavg_now) <= 20) // Waring Stage: Yellow
+                if(abs(levelavg_default - levelavg_now) > 40 && abs(levelavg_default - levelavg_now) <= 130) // Waring Stage: Yellow
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: Yellow","",2);// NEED TO SHOW TEXTLCD (MODE)
-                //    buzzerYellow(); //execl();//    
+					f_buzzerYellow();
                     pwmSetYellow();
                 }
-                else if(abs(levelavg_default - levelavg_now) > 20) // Waring Stage: Red
+                else if(abs(levelavg_default - levelavg_now) > 130) // Waring Stage: Red
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: RED   ","",2);
-                //    buzzerRed(); //execl();//    
+                    f_buzzerRed();
                     pwmSetRed();
                 }
                 else
@@ -285,8 +321,8 @@ void* LevelSensor()
                 }
                 button_mode = RxButton.keyInput;
                 printf("mode2: %d\r\n",button_mode);                
-                usleep(1000);
-                if(button_mode != 2) break;                  
+                sleep(1);
+                if(button_mode != 2) i=1;                  
             }
             pthread_mutex_unlock(&lock);
         }
@@ -301,7 +337,29 @@ void* LevelSensor()
 
 }
 
+void f_buzzerYellow()
+{		
+	for(int i=0;i<3;i++)
+	{
+			buzzerPlaySound(4);
+			usleep(150000);  // 1.5초동안 소리남
+	
+			buzzerStopSound();
+			usleep(150000); // 1.5초 후 소리 Stop한것
+	}
+}
 
+void f_buzzerRed()
+{
+	for(int i=0;i<3;i++)
+	{
+			buzzerPlaySound(7);
+			usleep(50000);  // 1.5초동안 소리남
+	
+			buzzerStopSound();
+			usleep(50000); // 1.5초 후 소리 Stop한것
+	}
+}
 ////////////////////////////// Useless Function
 void library_init()
 {
@@ -320,23 +378,3 @@ void library_init()
     printf("INIT FINISHED \r\n");
 }
 
-void library_exit()
-{
-    ledsOn(0,0);
-    buzzerStopSound();
-    ledLibExit();
-
-    buttonExit();
-
-    buzzerExit();
-    
-    fndOff();
-    fndExit();
-
-    textlcdOff();
-    temp_off();
-
-    pwmInactiveAll();
-    
-    printf("EXIT FINISHED \r\n");
-}

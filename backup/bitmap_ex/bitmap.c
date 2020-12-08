@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
+#include "button.h"
 #include "libbitmap.h"
 
 void* getData();
@@ -30,11 +31,8 @@ int main()
     int bits_per_pixel;
     int line_length;
     int cols = 0, rows= 0;
-    pthread_t thread_t1,thread_t2;
-
-
-
-    
+    pthread_t thread_t2;
+	void * ret = NULL;
     if(fb_init(&screen_width,&screen_height,&bits_per_pixel,&line_length) <0 )
     {
         printf("FrameBuffer Init Failed\r\n");
@@ -44,7 +42,8 @@ int main()
     draw_background(data);
 
     pthread_create(&thread_t2,NULL,drawGraph,NULL);
-    pthread_join(thread_t2,NULL);
+    
+    pthread_join(thread_t2,&ret);
     
     fb_close();
 }
@@ -64,7 +63,7 @@ void* drawGraph()
     static int temp_ex2;
     static int temp_ex3;
     int getdata_x=0,getdata_y=0,getdata_z=0;
-
+	static int retval=999;
     shmID = shmget((key_t)1234,1024,IPC_CREAT|0666);
     if(shmID == -1)
     {
@@ -81,6 +80,8 @@ void* drawGraph()
 
     while(1)
     {   
+		
+        if((execl_off)==1)  pthread_exit((void*)&retval);
         if(first_loop==1)
         {   
             int x=0,y=0,z=0;
@@ -89,61 +90,66 @@ void* drawGraph()
                
                 if(get_data==1)
                 {
-                accel_data = (int *)shmemAddr;
-                printf("accel_data: %d %d %d\r\n",accel_data[1],accel_data[2],accel_data[3]);
-                if( ( (accel[0] = 300 - accel_data[0]/10) < 0) || ( (accel[0] = 300 - accel_data[0]/10) > 600) )
-                {
-                    if(accel[0] < 300)  accel[0]= 0;
-                    else accel[0] = 600;
-                }
-                if( ( (accel[1] = 300 - accel_data[1]/10) < 0) || ( (accel[1] = 300 - accel_data[1]/10) > 600) )
-                {     
-                    if(accel[1] < 300)  accel[1]= 0;
-                    else accel[1] = 600;
-                }                
-                if( ( (accel[2] = 300 - accel_data[2]/10) < 0) || ( (accel[2] = 300 - accel_data[2]/10) > 600) )
-                {
-                    if(accel[2] < 300)  accel[2]= 0;
-                    else accel[2] = 600;
-                }
-                if(first_data==1){
-                    accel_ex1 = accel[0];
-                    accel_ex2 = accel[1];
-                    accel_ex3 = accel[2];
-                    first_data=0;
-                }
-                else
-                {
-                    accel_ex1 = temp_ex1;
-                    accel_ex2 = temp_ex2;
-                    accel_ex3 = temp_ex3;
-                }
+					accel_data = (int *)shmemAddr;
+					printf("accel_data: %d %d %d\r\n",accel_data[1],accel_data[2],accel_data[3]);
+					
+					if( ( (accel[0] = 300 - accel_data[0]/10) < 0) || ( (accel[0] = 300 - accel_data[0]/10) > 600) )
+					{
+						if(accel[0] < 300)  accel[0]= 0;
+						else accel[0] = 600;
+					}
+					if( ( (accel[1] = 300 - accel_data[1]/10) < 0) || ( (accel[1] = 300 - accel_data[1]/10) > 600) )
+					{	     
+						if(accel[1] < 300)  accel[1]= 0;
+						else accel[1] = 600;
+					}	                
+					if( ( (accel[2] = 300 - accel_data[2]/10) < 0) || ( (accel[2] = 300 - accel_data[2]/10) > 600) )
+					{
+						if(accel[2] < 300)  accel[2]= 0;
+						else accel[2] = 600;
+					}
+					
+					if(first_data==1){
+						accel_ex1 = accel[0];
+						accel_ex2 = accel[1];
+						accel_ex3 = accel[2];
+						first_data=0;
+					}
+					else{
+						accel_ex1 = temp_ex1;
+						accel_ex2 = temp_ex2;
+						accel_ex3 = temp_ex3;
+					}
                 
-                printf("\t accel_ex: %d %d %d \r\n",accel_ex1,accel_ex2,accel_ex3);
-                usleep(10);
-                accel_data = (int *)shmemAddr;
-                printf("accel_data: %d %d %d\r\n",accel_data[0],accel_data[1],accel_data[2]);
-                if( ( (accel[0] = 300 - accel_data[0]/10) < 0) || ( (accel[0] = 300 - accel_data[0]/10) > 600) )
-                {
-                    if(accel[0] < 300)  accel[0]= 0;
-                    else accel[0] = 600;
-                }
-                if( ( (accel[1] = 300 - accel_data[1]/10) < 0) || ( (accel[1] = 300 - accel_data[1]/10) > 600) )
-                {     
-                    if(accel[1] < 300)  accel[1]= 0;
-                    else accel[1] = 600;
-                }                
-                if( ( (accel[2] = 300 - accel_data[2]/10) < 0) || ( (accel[2] = 300 - accel_data[2]/10) > 600) )
-                {
-                    if(accel[2] < 300)  accel[2]= 0;
-                    else accel[2] = 600;
-                }
-                temp_ex1 = accel[0];
-                temp_ex2 = accel[1];
-                temp_ex3 = accel[2];
-                printf("\t accel: %d %d %d\r\n",accel[0],accel[1],accel[2]);
-                get_data=0;
-                }
+					printf("\t accel_ex: %d %d %d \r\n",accel_ex1,accel_ex2,accel_ex3);
+					
+					usleep(10);
+					
+					accel_data = (int *)shmemAddr;
+					printf("accel_data: %d %d %d\r\n",accel_data[0],accel_data[1],accel_data[2]);
+					printf("\t\t buttonmode : %d \r\n",execl_off);
+					
+					if( ( (accel[0] = 300 - accel_data[0]/10) < 0) || ( (accel[0] = 300 - accel_data[0]/10) > 600) )
+					{
+						if(accel[0] < 300)  accel[0]= 0;
+						else accel[0] = 600;
+					}
+					if( ( (accel[1] = 300 - accel_data[1]/10) < 0) || ( (accel[1] = 300 - accel_data[1]/10) > 600) )
+					{	     
+						if(accel[1] < 300)  accel[1]= 0;
+						else accel[1] = 600;
+					}	                
+					if( ( (accel[2] = 300 - accel_data[2]/10) < 0) || ( (accel[2] = 300 - accel_data[2]/10) > 600) )
+					{
+						if(accel[2] < 300)  accel[2]= 0;
+						else accel[2] = 600;
+					}
+					temp_ex1 = accel[0];
+					temp_ex2 = accel[1];
+					temp_ex3 = accel[2];
+					printf("\t accel: %d %d %d\r\n",accel[0],accel[1],accel[2]);
+					get_data=0;
+					}
                 else
                 {
                 printf("draw accel: %d %d %d \r\n",accel[0],accel[1],accel[2]);

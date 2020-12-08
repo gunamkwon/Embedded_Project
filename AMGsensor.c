@@ -74,6 +74,23 @@ int* getGyroscope()
 	return gyro;
 }
 
+int* getGyroscope_default()
+{
+	fd = open(GYROPATH "enable", O_WRONLY);
+	dprintf(fd,"1");
+	close(fd);
+
+	fp = fopen(GYROPATH "data", "rt");
+    static	int	gyro[3];
+    static int gyro_def[3];
+	fscanf(fp,"%d, %d, %d",&gyro[0],&gyro[1],&gyro[2]);
+	printf("I read Accel %d, %d, %d\r\n",gyro[0],gyro[1],gyro[2]);
+	fclose(fp);
+	for(int i=0;i<3;i++){
+		gyro_def[i] = gyro[i];
+	}
+    return gyro_def;
+}
 
 double getAverage(int *data)
 { 

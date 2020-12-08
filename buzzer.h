@@ -8,7 +8,5 @@ int buzzerPlaySound(int scale); // Buzzer 사운드 출력 함수(scale은 음(�
 int buzzerStopSound(); // Buzzer 사운드 그만하는 함수
 int buzzerExit(); // Buzzer 설정 Off
 
-void buzzerYellow();
-void buzzerRed();
 
 #endif

@@ -89,28 +89,6 @@ int buzzerPlaySound(int scale)
 	}
 }
 
-void buzzerYellow()
-{
-	for(;;)
-	{	
-		setFrequency(musicScale[4]);
-		buzzerEnable(1);
-	}
-}
-
-void buzzerRed()
-{
-	for(;;)
-	{
-		setFrequency(musicScale[7]);
-		buzzerEnable(1);
-				
-	}
-}
-
-
-
-
 
 int buzzerStopSound()
 {
