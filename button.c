@@ -34,7 +34,7 @@ int probeButtonPath(char *newPath)
 	{
 		char tmpStr[200];
 		fgets(tmpStr,200,fp);
-		//printf("%s \n",tmpStr);
+
 		if( strcmp(tmpStr,HAVE_TO_FIND_1) == 0)
 		{
 			printf("YES! I found: %s\r\n",tmpStr);
@@ -55,7 +55,7 @@ int probeButtonPath(char *newPath)
 	return returnValue;
 }
 
-//while loop를 돌면서 read하다가 의미있는 값을 msgsnd
+
 void* buttonThFunc()
 {
 	while(1)
@@ -96,8 +96,7 @@ void* buttonThFunc()
 						
 			}
 		}
-		else ; // do Nothing
-	}
+		else ; 
 }
 
 int buttonInit()
