@@ -231,7 +231,7 @@ void* MagnitudeSensor()
 
 void* TempSensor()
 {   
-    while(1)
+    for(;;)
     {	
         
 		int i=0;
@@ -300,16 +300,15 @@ void* LevelSensor()
             {
                 int *level_now = getGyroscope();
                 double levelavg_now = getAverage(level_now);
-                if(abs(levelavg_default - levelavg_now) > 40 && abs(levelavg_default - levelavg_now) <= 130) // Waring Stage: Yellow
+                if(abs(levelavg_default - levelavg_now) > 40 && abs(levelavg_default - levelavg_now) <= 130)
                 {
                     buzzerStopSound();
-                    textlcdwrite("Warning: Yellow","",2);// NEED TO SHOW TEXTLCD (MODE)
+                    textlcdwrite("Warning: Yellow","",2);
 					 pwmSetYellow();
 					 f_buzzerYellow();
                   
                 }
-                else if(abs(levelavg_default - levelavg_now) > 130) // Waring Stage: Red
-                {
+                else if(abs(levelavg_default - levelavg_now) > 130)
                     buzzerStopSound();
                     textlcdwrite("Warning: RED   ","",2);
                    pwmSetRed();
@@ -344,10 +343,10 @@ void f_buzzerYellow()
 	for(int i=0;i<3;i++)
 	{
 			buzzerPlaySound(4);
-			usleep(150000);  // 1.5초동안 소리남
+			usleep(150000);  
 	
 			buzzerStopSound();
-			usleep(150000); // 1.5초 후 소리 Stop한것
+			usleep(150000); 
 	}
 }
 
@@ -356,13 +355,13 @@ void f_buzzerRed()
 	for(int i=0;i<3;i++)
 	{
 			buzzerPlaySound(7);
-			usleep(50000);  // 1.5초동안 소리남
+			usleep(50000);  
 	
 			buzzerStopSound();
-			usleep(50000); // 1.5초 후 소리 Stop한것
+			usleep(50000); 
 	}
 }
-////////////////////////////// Useless Function
+
 void library_init()
 {
     ledLibInit();
