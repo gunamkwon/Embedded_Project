@@ -18,7 +18,7 @@ int ledOnOff(int ledNum, int onoff)
 	write(fd, &ledValue,4);
 }
 
-int ledsOn(int ledCount, int onoff)
+int ledsOn2int ledCount, int onoff)
 {
 	ledValue = 0;
 	ledOnOff(0,0);
