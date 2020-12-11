@@ -57,11 +57,11 @@ int main()
 
     pid = fork();
 
-   if(pid > 0) // parent process
+   if(pid > 0) 
    { 
         while( !(waitpid(pid,&status,WNOHANG)) ) 
         {
-            // Shared Memory
+
             shmID = shmget((key_t)1234,1024,IPC_CREAT|0666);
             if(shmID == -1)
             {
@@ -75,7 +75,7 @@ int main()
                 return -2;
             }
 
-            //thread_mutex_init
+            
             if(pthread_mutex_init(&lock,NULL)   !=0 )
             {
                 printf("\n Mutex Init Failed\r\n");
@@ -101,9 +101,9 @@ int main()
         }
     }
 
-    else if(pid == 0) // child process
+    else if(pid == 0) 
     {
-        execl("/home/ecube/PROJECT/bitmap.out","bitmap.out",(char *)0); // Excuting GraphWW
+        execl("/home/ecube/PROJECT/bitmap.out","bitmap.out",(char *)0); 
     }
 
     else
@@ -189,7 +189,7 @@ void* MagnitudeSensor()
                 printf("magnitude: %d\r\n",magnitude);
                 ledsOn(magnitude,1);
                 
-                if(magnitude >= 3 && magnitude <= 6) // Warning Stage: Yellow
+                if(magnitude >= 3 && magnitude <= 6)
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: Yellow","",2);
@@ -197,8 +197,7 @@ void* MagnitudeSensor()
                      f_buzzerYellow();
                    
                 } 
-                else if(magnitude > 6) // Warning Stage: Red
-                {
+                else if(magnitude > 6) 
                     buzzerStopSound();
                     textlcdwrite("Warning: RED   ","",2);
                     pwmSetRed();
@@ -244,16 +243,15 @@ void* TempSensor()
             {
                 double temp_now = getTemperature();
                 printf("temperature_now: %lf \r\n",temp_now);
-                fndDisp(temp_now,0);    // Display Temperature in FND
-                if(temp_now > 31 && temp_now <= 33)    // Waring Stage: Yellow
+                fndDisp(temp_now,0);  
+                if(temp_now > 31 && temp_now <= 33)   
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: Yellow","",2);
 					pwmSetYellow();
 					f_buzzerYellow();
                 }
-                else if( temp_now > 33) // Waring Stage: Red
-                {
+                else if( temp_now > 33) 
                     buzzerStopSound();
                     textlcdwrite("Warning: RED   ","",2);
 					pwmSetRed();
