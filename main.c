@@ -95,8 +95,9 @@ int main()
             pthread_join(mode[0],NULL);
             pthread_join(mode[1],NULL);
             pthread_join(mode[2],NULL);
+            pthread_join(button,NULL);
             pthread_join(exit_program,NULL);
-			pthread_join(button,NULL);
+			
         }
     }
 
@@ -158,7 +159,7 @@ void *EXIT_P()
 
 void* MagnitudeSensor()
 {
-    while(1)
+    for(;;)
     {
 		int i=0;
         pthread_mutex_lock(&lock);
@@ -192,15 +193,16 @@ void* MagnitudeSensor()
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: Yellow","",2);
-                    f_buzzerYellow();
-                    pwmSetYellow();
+                     pwmSetYellow();
+                     f_buzzerYellow();
+                   
                 } 
                 else if(magnitude > 6) // Warning Stage: Red
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: RED   ","",2);
-                    f_buzzerRed();
                     pwmSetRed();
+                    f_buzzerRed();
                 }
                 else
                 {
@@ -247,16 +249,15 @@ void* TempSensor()
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: Yellow","",2);
+					pwmSetYellow();
 					f_buzzerYellow();
-
-                    pwmSetYellow();
                 }
                 else if( temp_now > 33) // Waring Stage: Red
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: RED   ","",2);
-					f_buzzerRed(); 
-                    pwmSetRed();
+					pwmSetRed();
+                    f_buzzerRed(); 
                 }
                 else
                 {
@@ -303,15 +304,16 @@ void* LevelSensor()
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: Yellow","",2);// NEED TO SHOW TEXTLCD (MODE)
-					f_buzzerYellow();
-                    pwmSetYellow();
+					 pwmSetYellow();
+					 f_buzzerYellow();
+                  
                 }
                 else if(abs(levelavg_default - levelavg_now) > 130) // Waring Stage: Red
                 {
                     buzzerStopSound();
                     textlcdwrite("Warning: RED   ","",2);
+                   pwmSetRed();
                     f_buzzerRed();
-                    pwmSetRed();
                 }
                 else
                 {
