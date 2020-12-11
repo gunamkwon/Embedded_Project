@@ -71,7 +71,7 @@ void setFrequency(int frequency)
 	close(fd);
 }
 
-int buzzerPlaySound2(int scale)
+int buzzerPlaySound(int scale)
 {
 	if(scale > MAX_SCALE_STEP)
 	{
