@@ -210,7 +210,8 @@ void* drawGraph()
         else
         {
             int x=0,y=0,z=0;
-            //printf("second loop!!!!!!!!!!!!!!!\r\n");
+            
+            
             for(cnt=3;cnt<=1024;cnt++)
             {
                 if(get_data==1)
