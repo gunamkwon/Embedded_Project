@@ -159,7 +159,7 @@ void *EXIT_P()
 
 void* MagnitudeSensor()
 {
-    for(;;)
+   while(1)
     {
 		int i=0;
         pthread_mutex_lock(&lock);
