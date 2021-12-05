@@ -36,7 +36,7 @@
 [관련 사진]
 
 - 실시간 그래프
-  ![graph](./img/graph.jpg)
+  ![graph](./img/Graph.jpg)
 
 - 각종 센서 기능
 
