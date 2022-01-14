@@ -205,6 +205,7 @@ void draw_info_X(char *data)
 
 }
 
+
 void draw_info_Y(char *data)
 {
     // draw RED Square
