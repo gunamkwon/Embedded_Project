@@ -31,19 +31,19 @@ int fb_init(int * screen_width, int * screen_height, int * bits_per_pixel, int *
 {
     struct  fb_fix_screeninfo fbfix;
 
-	if( (fbfd = open(FBDEV_FILE, O_RDWR)) < 0)
+	if((fbfd = open(FBDEV_FILE, O_RDWR)) < 0)
     {
         printf("%s: open error\n", FBDEV_FILE);
         return -1;
     }
 
-    if( ioctl(fbfd, FBIOGET_VSCREENINFO, &fbInfo) )
+    if(ioctl(fbfd, FBIOGET_VSCREENINFO, &fbInfo))
     {
         printf("%s: ioctl error - FBIOGET_VSCREENINFO \n", FBDEV_FILE);
 		close(fbfd);
         return -1;
     }
-   	if( ioctl(fbfd, FBIOGET_FSCREENINFO, &fbFixInfo) )
+   	if(ioctl(fbfd, FBIOGET_FSCREENINFO, &fbFixInfo))
     {
         printf("%s: ioctl error - FBIOGET_FSCREENINFO \n", FBDEV_FILE);
         close(fbfd);
@@ -52,7 +52,7 @@ int fb_init(int * screen_width, int * screen_height, int * bits_per_pixel, int *
 	//printf ("FBInfo.YOffset:%d\r\n",fbInfo.yoffset);
 	fbInfo.yoffset = 0;
 	ioctl(fbfd, FBIOPUT_VSCREENINFO, &fbInfo);	//슉!
-    if (fbInfo.bits_per_pixel != 32)
+    if(fbInfo.bits_per_pixel != 32)
     {
         printf("bpp is not 32\n");
 		close(fbfd);
@@ -64,7 +64,7 @@ int fb_init(int * screen_width, int * screen_height, int * bits_per_pixel, int *
     *bits_per_pixel  =   fbInfo.bits_per_pixel;
     *line_length     =   fbFixInfo.line_length;
 
-	pfbmap  =   (unsigned long *)
+	pfbmap = (unsigned long *)
         mmap(0, PFBSIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fbfd, 0);
 	
 	if ((unsigned)pfbmap == (unsigned)-1)
@@ -82,7 +82,7 @@ int fb_init(int * screen_width, int * screen_height, int * bits_per_pixel, int *
 	return 1;
 }
 
-void fb_clear(void)
+void fb_clear()
 {
 	int coor_y = 0;
 	int coor_x = 0;
@@ -100,7 +100,7 @@ void fb_clear(void)
 	#endif
 }
 
-void fb_doubleBufSwap(void)
+void fb_doubleBufSwap()
 {
 	if (currentEmptyBufferPos == 0)
 	{
@@ -115,7 +115,7 @@ void fb_doubleBufSwap(void)
 	ioctl(fbfd, FBIOPUT_VSCREENINFO, &fbInfo);	//슉!
 }
 
-void fb_close(void)
+void fb_close()
 {
 	printf ("Memory UnMapped!\r\n");
     munmap( pfbmap, PFBSIZE);
@@ -149,58 +149,65 @@ void fb_write(char* picData)
 	#endif
 }
 
-void draw_background(char *data)
+void draw_axis_xy(char *data)
 {
-    // draw row
-    for(int i=0;i<HEIGHT;i++)
+    // draw Y-axis
+    int left_margin = 3;
+    int coorY_x = left_margin;
+    for(int coor_y=0; coor_y < HEIGHT; coor_y++)
     {
-        data[((WIDTH*i)+WIDTH-3)*3+0] = 0xff;
-        data[((WIDTH*i)+WIDTH-3)*3+1] = 0xff;
-        data[((WIDTH*i)+WIDTH-3)*3+2] = 0xff;
+        //data[[((WIDTH*"coor_y")+WIDTH-"coor_x")*3+"RGB"]]
+        data[((WIDTH*coor_y)+WIDTH-coorY_x)*3+0] = 0xff;
+        data[((WIDTH*coor_y)+WIDTH-coorY_x)*3+1] = 0xff;
+        data[((WIDTH*coor_y)+WIDTH-coorY_x)*3+2] = 0xff;
     }
 
-    // draw line
-    for(int i=3;i<WIDTH;i++)
+    // draw X-axis
+    int coorX_y = HEIGHT/2;
+    for(int coor_x = left_margin; coor_x < WIDTH; coor_x++)
     {
-        data[((WIDTH*300)+i)*3+0] = 0xff;
-        data[((WIDTH*300)+i)*3+1] = 0xff;
-        data[((WIDTH*300)+i)*3+2] = 0xff;
+        data[((WIDTH*coorX_y)+coor_x)*3+0] = 0xff;
+        data[((WIDTH*coorX_y)+coor_x)*3+1] = 0xff;
+        data[((WIDTH*coorX_y)+coor_x)*3+2] = 0xff;
     }
+}
 
-    // draw GREEN Square + INFO
+void draw_info_X(char *data)
+{
+    // draw GREEN Square
     for(int i=0;i<20;i++)
     {
         for(int j=0;j<10;j++)
         {
-            data[((WIDTH*(590-j))+WIDTH-900+i)*3+0] = 0x00;    
-            data[((WIDTH*(590-j))+WIDTH-900+i)*3+1] = 0xff;
-            data[((WIDTH*(590-j))+WIDTH-900+i)*3+2] = 0x00;
+            data[((WIDTH*(530-j))+WIDTH-900+i)*3+0] = 0xff;    
+            data[((WIDTH*(530-j))+WIDTH-900+i)*3+1] = 0x00;
+            data[((WIDTH*(530-j))+WIDTH-900+i)*3+2] = 0x00;
         }
     }
-
+    // draw '-'
     for(int i=0;i<10;i++)
     {
-        data[((WIDTH*(585))+WIDTH-900-20-i)*3+0] = 0xff;    
-        data[((WIDTH*(585))+WIDTH-900-20-i)*3+1] = 0xff;
-        data[((WIDTH*(585))+WIDTH-900-20-i)*3+2] = 0xff;
+        data[((WIDTH*(525))+WIDTH-900-20-i)*3+0] = 0xff;    
+        data[((WIDTH*(525))+WIDTH-900-20-i)*3+1] = 0xff;
+        data[((WIDTH*(525))+WIDTH-900-20-i)*3+2] = 0xff;
     }
-    // draw z
-    for(int i=0;i<10;i++)
+    //draw 'X'
+    for(int i=0;i<20;i++)
     {
-        data[( (WIDTH*(590))+WIDTH-900-45-i )*3+0] = 0xff;
-        data[( (WIDTH*(590))+WIDTH-900-45-i )*3+1] = 0xff;
-        data[( (WIDTH*(590))+WIDTH-900-45-i )*3+2] = 0xff;
+        data[((WIDTH*(515+i))+WIDTH-900-40-i)*3+0] = 0xff;
+        data[((WIDTH*(515+i))+WIDTH-900-40-i)*3+1] = 0xff;
+        data[((WIDTH*(515+i))+WIDTH-900-40-i)*3+2] = 0xff;
         
-        data[( (WIDTH*(580+i))+WIDTH-900-55+i )*3+0] = 0xff;
-        data[( (WIDTH*(580+i))+WIDTH-900-55+i )*3+1] = 0xff;
-        data[( (WIDTH*(580+i))+WIDTH-900-55+i )*3+2] = 0xff;
-
-        data[( (WIDTH*(580))+WIDTH-900-45-i )*3+0] = 0xff;
-        data[( (WIDTH*(580))+WIDTH-900-45-i )*3+1] = 0xff;
-        data[( (WIDTH*(580))+WIDTH-900-45-i )*3+2] = 0xff; 
+        data[((WIDTH*(515+i))+WIDTH-900-60+i)*3+0] = 0xff;
+        data[((WIDTH*(515+i))+WIDTH-900-60+i)*3+1] = 0xff;
+        data[((WIDTH*(515+i))+WIDTH-900-60+i)*3+2] = 0xff; 
     }
 
-    // draw RED Square + INFO
+}
+
+void draw_info_Y(char *data)
+{
+    // draw RED Square
     for(int i=0;i<20;i++)
     {
         for(int j=0;j<10;j++)
@@ -211,57 +218,77 @@ void draw_background(char *data)
         }
     }
 
+    // draw '-'
     for(int i=0;i<10;i++)
     {
         data[((WIDTH*(555))+WIDTH-900-20-i)*3+0] = 0xff;    
         data[((WIDTH*(555))+WIDTH-900-20-i)*3+1] = 0xff;
         data[((WIDTH*(555))+WIDTH-900-20-i)*3+2] = 0xff;
     }
-    //draw y
+
+    //draw 'Y'
     for(int i=0;i<10;i++)
     {
-
-        data[( (WIDTH*(545+i))+WIDTH-900-60+i )*3+0] = 0xff;
-        data[( (WIDTH*(545+i))+WIDTH-900-60+i )*3+1] = 0xff;
-        data[( (WIDTH*(545+i))+WIDTH-900-60+i )*3+2] = 0xff;
+        data[((WIDTH*(545+i))+WIDTH-900-60+i)*3+0] = 0xff;
+        data[((WIDTH*(545+i))+WIDTH-900-60+i)*3+1] = 0xff;
+        data[((WIDTH*(545+i))+WIDTH-900-60+i)*3+2] = 0xff;
         
-        data[( (WIDTH*(545+i))+WIDTH-900-40-i )*3+0] = 0xff;
-        data[( (WIDTH*(545+i))+WIDTH-900-40-i )*3+1] = 0xff;
-        data[( (WIDTH*(545+i))+WIDTH-900-40-i )*3+2] = 0xff; 
+        data[((WIDTH*(545+i))+WIDTH-900-40-i)*3+0] = 0xff;
+        data[((WIDTH*(545+i))+WIDTH-900-40-i)*3+1] = 0xff;
+        data[((WIDTH*(545+i))+WIDTH-900-40-i)*3+2] = 0xff; 
 
-        data[( (WIDTH*(555+i))+WIDTH-900-50 )*3+0] = 0xff;
-        data[( (WIDTH*(555+i))+WIDTH-900-50 )*3+1] = 0xff;
-        data[( (WIDTH*(555+i))+WIDTH-900-50 )*3+2] = 0xff;
+        data[((WIDTH*(555+i))+WIDTH-900-50)*3+0] = 0xff;
+        data[((WIDTH*(555+i))+WIDTH-900-50)*3+1] = 0xff;
+        data[((WIDTH*(555+i))+WIDTH-900-50)*3+2] = 0xff;
     }
+}
 
-    // draw GREEN Square + INFO
+void draw_info_Z(char * data)
+{
+    int z_posBottom = 580;
+    int z_posTop = 590;
+    int info_start_pos = 900;
+    // draw GREEN Square
     for(int i=0;i<20;i++)
     {
         for(int j=0;j<10;j++)
         {
-            data[((WIDTH*(530-j))+WIDTH-900+i)*3+0] = 0xff;    
-            data[((WIDTH*(530-j))+WIDTH-900+i)*3+1] = 0x00;
-            data[((WIDTH*(530-j))+WIDTH-900+i)*3+2] = 0x00;
+            data[((WIDTH*(z_posTop-j))+WIDTH-info_start_pos+i)*3+0] = 0x00;    
+            data[((WIDTH*(z_posTop-j))+WIDTH-info_start_pos+i)*3+1] = 0xff;
+            data[((WIDTH*(z_posTop-j))+WIDTH-info_start_pos+i)*3+2] = 0x00;
         }
     }
-
+    // draw '-'
+    int z_posMiddle = (z_posBottom + z_posTop) /2;
     for(int i=0;i<10;i++)
     {
-        data[( (WIDTH*(525))+WIDTH-900-20-i )*3+0] = 0xff;    
-        data[( (WIDTH*(525))+WIDTH-900-20-i )*3+1] = 0xff;
-        data[( (WIDTH*(525))+WIDTH-900-20-i )*3+2] = 0xff;
+        data[((WIDTH*(z_posMiddle)+WIDTH-info_start_pos-20-i)*3+0] = 0xff;    
+        data[((WIDTH*(z_posMiddle))+WIDTH-info_start_pos-20-i)*3+1] = 0xff;
+        data[((WIDTH*(z_posMiddle))+WIDTH-info_start_pos-20-i)*3+2] = 0xff;
     }
-    //draw x
-    for(int i=0;i<20;i++)
+    // draw 'Z'
+    int z_charPos = ((WIDTH*(z_posTop))+WIDTH-info_start_pos;   
+    for(int i=0;i<10;i++)
     {
-        data[( (WIDTH*(515+i))+WIDTH-900-40-i )*3+0] = 0xff;
-        data[( (WIDTH*(515+i))+WIDTH-900-40-i )*3+1] = 0xff;
-        data[( (WIDTH*(515+i))+WIDTH-900-40-i )*3+2] = 0xff;
+        data[z_charPos-45-i)*3+0] = 0xff;
+        data[z_charPos-45-i)*3+1] = 0xff;
+        data[z_charPos-45-i)*3+2] = 0xff;
         
-        data[( (WIDTH*(515+i))+WIDTH-900-60+i )*3+0] = 0xff;
-        data[( (WIDTH*(515+i))+WIDTH-900-60+i )*3+1] = 0xff;
-        data[( (WIDTH*(515+i))+WIDTH-900-60+i )*3+2] = 0xff; 
-    }
+        data[z_charPos-55+i)*3+0] = 0xff;
+        data[z_charPos-55+i)*3+1] = 0xff;
+        data[z_charPos-55+i)*3+2] = 0xff;
 
+        data[z_charPos-45-i)*3+0] = 0xff;
+        data[z_charPos-45-i)*3+1] = 0xff;
+        data[z_charPos-45-i)*3+2] = 0xff; 
+    }
+}
+
+void draw_background(char *data)
+{
+    draw_axis_xy(data);
+    draw_info_Z(data);
+    draw_info_Y(data);
+    draw_info_X(data);
     fb_write(data);
 }
