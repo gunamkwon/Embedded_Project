@@ -113,6 +113,7 @@ void* drawGraph()
             {                
                 if(get_data==1)
                 {
+					// Get First Data
 					accel_data = (int *)shmemAddr;
 					//printf("accel_data: %d %d %d\r\n",accel_data[1],accel_data[2],accel_data[3]);
 					
@@ -151,6 +152,8 @@ void* drawGraph()
 					
 					usleep(10);
 					
+					
+					// Get Second Data
 					accel_data = (int *)shmemAddr;
 					//printf("accel_data: %d %d %d\r\n",accel_data[0],accel_data[1],accel_data[2]);
 					if(	RxButton.keyInput==5 ) pthread_cancel(thread_t2);
@@ -182,20 +185,22 @@ void* drawGraph()
                 {
                 	//printf("draw accel: %d %d %d \r\n",accel[0],accel[1],accel[2]);
                     // draw x line
-                		data[((WIDTH*(accel_ex[0]+x))+WIDTH-cnt)*3+0] = 0xff; 
-                        data[((WIDTH*(accel_ex[0]+x))+WIDTH-cnt)*3+1] = 0x00;
-                        data[((WIDTH*(accel_ex[0]+x))+WIDTH-cnt)*3+2] = 0x00;
-                        x_temp[cnt-3] = ((WIDTH*(accel_ex[0]+x))+WIDTH-cnt)*3;
-                    // draw y line
-                        data[((WIDTH*(accel_ex[1]+y))+WIDTH-cnt)*3+0] = 0x00;
-                        data[((WIDTH*(accel_ex[1]+y))+WIDTH-cnt)*3+1] = 0x00;
-                        data[((WIDTH*(accel_ex[1]+y))+WIDTH-cnt)*3+2] = 0xff;
-                        y_temp[cnt-3] = ((WIDTH*(accel_ex[1]+y))+WIDTH-cnt)*3;
-                    // draw z line
-                        data[((WIDTH*(accel_ex[2]+z))+WIDTH-cnt)*3+0] = 0x00;
-                        data[((WIDTH*(accel_ex[2]+z))+WIDTH-cnt)*3+1] = 0xff;
-                        data[((WIDTH*(accel_ex[2]+z))+WIDTH-cnt)*3+2] = 0x00;
-                        z_temp[cnt-3] = ((WIDTH*(accel_ex[2]+z))+WIDTH-cnt)*3;
+                	data[((WIDTH*(accel_ex[0]+x))+WIDTH-cnt)*3+0] = 0xff; 
+                    data[((WIDTH*(accel_ex[0]+x))+WIDTH-cnt)*3+1] = 0x00;
+                    data[((WIDTH*(accel_ex[0]+x))+WIDTH-cnt)*3+2] = 0x00;
+                    x_temp[cnt-3] = ((WIDTH*(accel_ex[0]+x))+WIDTH-cnt)*3;
+                    
+					// draw y line
+                    data[((WIDTH*(accel_ex[1]+y))+WIDTH-cnt)*3+0] = 0x00;
+                    data[((WIDTH*(accel_ex[1]+y))+WIDTH-cnt)*3+1] = 0x00;
+                    data[((WIDTH*(accel_ex[1]+y))+WIDTH-cnt)*3+2] = 0xff;
+                    y_temp[cnt-3] = ((WIDTH*(accel_ex[1]+y))+WIDTH-cnt)*3;
+                    
+					// draw z line
+                    data[((WIDTH*(accel_ex[2]+z))+WIDTH-cnt)*3+0] = 0x00;
+                    data[((WIDTH*(accel_ex[2]+z))+WIDTH-cnt)*3+1] = 0xff;
+                    data[((WIDTH*(accel_ex[2]+z))+WIDTH-cnt)*3+2] = 0x00;
+                    z_temp[cnt-3] = ((WIDTH*(accel_ex[2]+z))+WIDTH-cnt)*3;
 
                     if((accel[0]+x) > accel_ex[0]) x-=1;
 					else if((accel[0]+x) < accel_ex[0]) x+=1; 
@@ -210,21 +215,21 @@ void* drawGraph()
 					else reachPos_xyz[2]=1;
 
                     fb_write(data);
-                    //usleep(1);
-                    if(reachPos_xyz[0]==1 && reachPos_xyz[1]==1 && reachPos_xyz[2]==1)
+                    
+					
+                    if(is_reach_pos(reachPos_xyz))
                     {
 						get_data=1;
-						reachPos_xyz[0]=0; 
+						reachPos_xyz[0]=0;
 						reachPos_xyz[1]=0; 
 						reachPos_xyz[2]=0;  
 						
-						x=0;y=0;z=0; 
+						x=0;y=0;z=0;
 						cnt++;
 					}
-
                 }
             }
-            
+
             first_loop=0;
         }
 
@@ -347,9 +352,8 @@ void* drawGraph()
 
 					fb_write(data);
 					//usleep(1);
-                	if(is_reach_pos(reachPos_xyz[0],reachPos_xyz[1],reachPos_xyz[2]))
+                	if(is_reach_pos(reachPos_xyz))
 					{
-						make_default_reachPos_data();
 						get_data=1;
 						reachPos_xyz[0]=0;
 						reachPos_xyz[1]=0;
@@ -364,9 +368,6 @@ void* drawGraph()
     }      
 }
 
-void make_default_reachPos_data() {
-	get_data = 1;
-}
-bool is_reach_pos(int c1,int c2, int c3){
-	return (c1 && c2 && c3);
+bool is_reach_pos(int *con){
+	return (con[0] && con[1] && con[2]);
 }
